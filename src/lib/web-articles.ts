@@ -377,38 +377,63 @@ const TRANSLATE_HOSTS = [
   "https://clients5.google.com/translate_a/single",
 ];
 
+// The plain client=gtx endpoint gets persistent fingerprint-based 429s when
+// called from server-side fetch, so use these instead. They live in separate
+// rate buckets and fail over each other.
+const TRANSLATE_ENDPOINTS: { url: (text: string, target: "fa" | "ar") => string; parse: (data: unknown) => string | null }[] = [
+  {
+    // Standard single-segment client (chrome-ex): [[["translated","src",...],...]]
+    url: (text, target) =>
+      `${TRANSLATE_HOSTS[0]}?client=chrome-ex&sl=en&tl=${target}&dt=t&q=${encodeURIComponent(text.slice(0, 4500))}`,
+    parse: (data) =>
+      Array.isArray((data as unknown[][])?.[0])
+        ? (data as unknown[][])[0].map((s) => (Array.isArray(s) ? String(s[0] ?? "") : "")).join("")
+        : null,
+  },
+  {
+    // Chrome-extension dictionary client: ["sentence one", "sentence two"]
+    url: (text, target) =>
+      `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=en&tl=${target}&q=${encodeURIComponent(text.slice(0, 4500))}`,
+    parse: (data) =>
+      Array.isArray(data)
+        ? (data as unknown[]).filter((s): s is string => typeof s === "string").join("")
+        : null,
+  },
+];
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function gtxTranslate(text: string, target: "fa" | "ar"): Promise<string | null> {
   if (!text.trim()) return text;
   for (let attempt = 0; attempt < 6; attempt++) {
-    const host = TRANSLATE_HOSTS[attempt % TRANSLATE_HOSTS.length];
+    const endpoint = TRANSLATE_ENDPOINTS[attempt % TRANSLATE_ENDPOINTS.length];
     try {
-      const res = await fetch(
-        `${host}?client=gtx&sl=en&tl=${target}&dt=t&q=${encodeURIComponent(text.slice(0, 4500))}`,
-        { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(20000) },
-      );
+      const res = await fetch(endpoint.url(text, target), {
+        headers: { "User-Agent": UA },
+        signal: AbortSignal.timeout(20000),
+      });
       if (res.status === 429) {
         // Rate limited — back off generously before retrying.
         await sleep(3000 * (attempt + 1));
         continue;
       }
       if (res.ok) {
-        const data = await res.json();
-        const out = Array.isArray(data?.[0])
-          ? data[0].map((s: unknown) => (Array.isArray(s) ? s[0] : "")).join("")
-          : null;
+        const out = endpoint.parse(await res.json());
         if (out) return out;
       }
     } catch {
-      // try next host / attempt
+      // try next endpoint / attempt
     }
     await sleep(1000 * (attempt + 1));
   }
   return null;
 }
 
-async function translateInChunks(text: string, target: "fa" | "ar"): Promise<string> {
+/**
+ * Translates text chunk by chunk. Returns null when ANY chunk fails so
+ * callers never save a body that mixes translated and English text.
+ */
+async function translateInChunks(text: string, target: "fa" | "ar"): Promise<string | null> {
   if (!text.trim()) return text;
 
   const chunks: string[] = [];
@@ -433,7 +458,8 @@ async function translateInChunks(text: string, target: "fa" | "ar"): Promise<str
   for (let i = 0; i < chunks.length; i++) {
     if (i > 0) await sleep(500);
     const result = await gtxTranslate(chunks[i], target);
-    results.push(result || chunks[i]);
+    if (!result) return null;
+    results.push(result);
   }
   return results.join("\n\n");
 }
@@ -441,15 +467,63 @@ async function translateInChunks(text: string, target: "fa" | "ar"): Promise<str
 export async function translateArticle(
   en: { title: string; excerpt: string; body: string },
   target: "fa" | "ar",
-): Promise<{ title: string; excerpt: string; body: string }> {
+): Promise<{ title: string; excerpt: string; body: string } | null> {
   const title = await gtxTranslate(en.title, target);
-  const excerpt = en.excerpt ? await gtxTranslate(en.excerpt, target) : null;
+  if (!title) return null;
+  let excerpt = "";
+  if (en.excerpt) {
+    const translatedExcerpt = await gtxTranslate(en.excerpt, target);
+    if (!translatedExcerpt) return null;
+    excerpt = translatedExcerpt;
+  }
   const body = await translateInChunks(en.body, target);
-  return {
-    title: title || en.title,
-    excerpt: excerpt || en.excerpt,
-    body,
-  };
+  if (!body) return null;
+  return { title, excerpt, body };
+}
+
+// ---------- Language validation ----------
+
+const CYRILLIC_RE = /[\u0400-\u04FF]/;
+// Both supported RTL locales (fa/ar) are written in Arabic script.
+const RTL_LETTER_RE = /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/;
+const SCRIPTED_LETTER_RE =
+  /[A-Za-z\u00C0-\u024F\u0400-\u04FF\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/g;
+
+function stripMarkdownNoise(text: string): string {
+  return text
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/https?:\/\/\S+/g, " ")
+    .replace(/[#>*_`|~]/g, " ");
+}
+
+/**
+ * Detects fa/ar text that is not actually written in the target language:
+ * Cyrillic runs (a known Google Translate glitch, e.g. "Миниятур" inside an
+ * Arabic sentence) or content whose letters are mostly Latin because the
+ * translation silently failed. Brand names, URLs and markdown syntax are
+ * ignored so legitimate mixed tokens don't trigger false positives.
+ */
+export function isWrongLanguage(text: string | null | undefined): boolean {
+  if (!text || !text.trim()) return false;
+  const clean = stripMarkdownNoise(text);
+  if (CYRILLIC_RE.test(clean)) return true;
+  const letters = clean.match(SCRIPTED_LETTER_RE);
+  if (!letters || letters.length === 0) return false;
+  const rtl = letters.filter((c) => RTL_LETTER_RE.test(c)).length;
+  return rtl / letters.length < 0.5;
+}
+
+function isFaArContentValid(t: {
+  title?: string | null;
+  excerpt?: string | null;
+  body?: string | null;
+}): boolean {
+  return !(
+    isWrongLanguage(t.title ?? undefined) ||
+    isWrongLanguage(t.excerpt ?? undefined) ||
+    isWrongLanguage(t.body ?? undefined)
+  );
 }
 
 // ---------- Cover image ----------
@@ -516,6 +590,9 @@ function buildSourceReference(sourceUrl: string, siteName: string, locale: Local
   return `\n\n---\n\n> 🌐 **${t.label}:** [${siteName} — ${t.article}](${sourceUrl})`;
 }
 
+// Matches a trailing source-reference block (any locale) appended by this pipeline.
+const SOURCE_REFERENCE_TAIL_RE = /\n*---\n+> 🌐 \*\*[^*\n]+\*\*:?\s*\[[^\]]*\]\([^)]*\)\s*$/;
+
 const TOPIC_LABELS: Record<string, Record<Locale, string>> = {
   printing: { en: "3D Printing", fa: "چاپ سه‌بعدی", ar: "الطباعة ثلاثية الأبعاد" },
   collecting: { en: "Collecting", fa: "کلکسیون", ar: "جمع التماثيل" },
@@ -560,11 +637,9 @@ export async function importWebArticle(candidate: WebArticleCandidate): Promise<
     translateArticle({ title: scraped.title, excerpt: enExcerpt || "", body: scraped.markdown }, "ar"),
   ]);
 
-  // If translation silently failed (e.g. rate limited) the text stays English.
-  // Never publish that as fa/ar — fail the import so a future run can retry.
-  const faFailed = fa.title === scraped.title && fa.body === scraped.markdown;
-  const arFailed = ar.title === scraped.title && ar.body === scraped.markdown;
-  if (faFailed || arFailed) {
+  // Never publish fa/ar content that silently stayed English or came back in
+  // the wrong language — fail the import so a future run can retry.
+  if (!fa || !ar || !isFaArContentValid(fa) || !isFaArContentValid(ar)) {
     return { slug, title: scraped.title, status: "failed", error: "translation_failed" };
   }
 
@@ -639,7 +714,7 @@ export async function importWebArticles(max = MAX_ARTICLES_PER_RUN): Promise<Imp
 
 /**
  * Detect imported web articles whose fa/ar translations silently fell back to
- * English (e.g. the translate endpoint was rate limited during import) and
+ * English or came back in the wrong language (e.g. Cyrillic glitches) and
  * re-translate them. Returns the slugs that were repaired.
  */
 export async function retranslateBrokenImports(limit = 2): Promise<string[]> {
@@ -659,46 +734,49 @@ export async function retranslateBrokenImports(limit = 2): Promise<string[]> {
     const ar = post.translations.find((t) => t.locale === "ar");
     if (!en || !fa || !ar) continue;
 
-    const isUntranslated = (t: { title: string; body: string }) =>
-      t.title === en.title && t.body === en.body;
-
-    const faBroken = isUntranslated(fa);
-    const arBroken = isUntranslated(ar);
-    if (!faBroken && !arBroken) continue;
+    // Drop the English source-reference block so it isn't translated into the
+    // body — a localized one is appended again afterwards.
+    const enCoreBody = en.body.replace(SOURCE_REFERENCE_TAIL_RE, "");
 
     try {
-      if (faBroken) {
+      if (!isFaArContentValid(fa)) {
         const t = await translateArticle(
-          { title: en.title, excerpt: en.excerpt ?? "", body: en.body },
+          { title: en.title, excerpt: en.excerpt ?? "", body: enCoreBody },
           "fa",
         );
-        if (!(t.title === en.title && t.body === en.body)) {
+        if (t && isFaArContentValid(t)) {
           await prisma.blogPostTranslation.update({
             where: { postId_locale: { postId: post.id, locale: "fa" } },
-            data: { title: t.title, excerpt: t.excerpt || null, body: t.body },
+            data: {
+              title: t.title,
+              excerpt: t.excerpt || null,
+              body: t.body + buildSourceReference(post.sourceUrl ?? "", post.sourceSiteName ?? "Source", "fa"),
+            },
           });
         }
       }
-      if (arBroken) {
+      if (!isFaArContentValid(ar)) {
         const t = await translateArticle(
-          { title: en.title, excerpt: en.excerpt ?? "", body: en.body },
+          { title: en.title, excerpt: en.excerpt ?? "", body: enCoreBody },
           "ar",
         );
-        if (!(t.title === en.title && t.body === en.body)) {
+        if (t && isFaArContentValid(t)) {
           await prisma.blogPostTranslation.update({
             where: { postId_locale: { postId: post.id, locale: "ar" } },
-            data: { title: t.title, excerpt: t.excerpt || null, body: t.body },
+            data: {
+              title: t.title,
+              excerpt: t.excerpt || null,
+              body: t.body + buildSourceReference(post.sourceUrl ?? "", post.sourceSiteName ?? "Source", "ar"),
+            },
           });
         }
       }
-      // Re-read to confirm both locales are now translated.
+      // Re-read to confirm both locales are now properly translated.
       const after = await prisma.blogPostTranslation.findMany({
         where: { postId: post.id, locale: { in: ["fa", "ar"] } },
-        select: { locale: true, title: true, body: true },
+        select: { locale: true, title: true, excerpt: true, body: true },
       });
-      const stillBroken = after.some(
-        (t) => t.title === en.title && t.body === en.body,
-      );
+      const stillBroken = after.some((t) => !isFaArContentValid(t));
       if (!stillBroken) fixed.push(post.slug);
     } catch (err) {
       console.error("[web-articles] retranslate failed", post.slug, err);
