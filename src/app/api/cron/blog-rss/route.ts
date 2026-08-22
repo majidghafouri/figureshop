@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/api";
 import { fetchAllFeeds, RssFeedConfig } from "@/lib/rss-aggregator";
+import { repairRssTranslations } from "@/lib/web-articles";
 import { getSetting } from "@/lib/settings";
 
 export async function GET(req: NextRequest) {
@@ -25,6 +26,9 @@ export async function GET(req: NextRequest) {
 
   const results = await fetchAllFeeds(feeds);
 
+  // Self-heal legacy RSS posts that were stored without proper translations.
+  const repaired = await repairRssTranslations(2);
+
   const totalImported = results.reduce((s, r) => s + r.imported, 0);
   const totalSkipped = results.reduce((s, r) => s + r.skipped, 0);
   const errors = results.filter((r) => r.error);
@@ -34,6 +38,7 @@ export async function GET(req: NextRequest) {
     totalImported,
     totalSkipped,
     results,
+    repaired,
     errors: errors.length > 0 ? errors : undefined,
   });
 }

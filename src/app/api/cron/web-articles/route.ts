@@ -1,6 +1,10 @@
 import { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/api";
-import { importWebArticles, retranslateBrokenImports } from "@/lib/web-articles";
+import {
+  importWebArticles,
+  retranslateBrokenImports,
+  repairRssTranslations,
+} from "@/lib/web-articles";
 
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -11,6 +15,7 @@ export async function GET(req: NextRequest) {
 
   // Repair any earlier imports whose translations silently fell back to English.
   const repaired = await retranslateBrokenImports(2);
+  const rssRepaired = await repairRssTranslations(2);
 
   const results = await importWebArticles(2);
 
@@ -20,6 +25,7 @@ export async function GET(req: NextRequest) {
 
   return ok({
     repaired,
+    rssRepaired,
     imported: imported.length,
     skipped: skipped.length,
     errors: errors.length > 0 ? errors : undefined,

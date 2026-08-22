@@ -1,5 +1,6 @@
 import RssParser from "rss-parser";
 import prisma from "@/lib/db";
+import { isFaArContentValid, translateArticle } from "@/lib/web-articles";
 
 const parser = new RssParser({
   timeout: 10_000,
@@ -54,19 +55,37 @@ export async function fetchSingleFeed(feed: RssFeedConfig): Promise<FetchResult>
         continue;
       }
 
-      const body = item.contentSnippet?.trim() || item.content?.trim() || "";
+      const rawBody =
+        item.contentSnippet?.trim() ||
+        item.content?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() ||
+        "";
       const image =
         item.enclosure?.url ||
         item.content?.match(/<img[^>]+src="([^"]+)"/)?.[1] ||
         null;
       const pubDate = item.pubDate ? new Date(item.pubDate) : new Date();
+      const excerpt = item.contentSnippet?.trim().slice(0, 300) || null;
+      const tagName = feed.name || parsed.title || "web";
+
+      // RSS feeds are English; translate once per target locale so every site
+      // language gets a proper version. Never publish untranslated content —
+      // a failed import is retried on the next cron run.
+      const [fa, ar] = await Promise.all([
+        translateArticle({ title, excerpt: excerpt ?? "", body: rawBody }, "fa"),
+        translateArticle({ title, excerpt: excerpt ?? "", body: rawBody }, "ar"),
+      ]);
+      if (!fa || !ar || !isFaArContentValid(fa) || !isFaArContentValid(ar)) {
+        console.warn("[rss-aggregator] translation failed, skipping:", slug);
+        skipped++;
+        continue;
+      }
 
       await prisma.blogPost.create({
         data: {
           slug,
           coverImage: image,
           category: parsed.title || feed.name || "web",
-          readingTime: estimateReadingTime(body),
+          readingTime: estimateReadingTime(rawBody),
           isPublished: true,
           isTrending: false,
           publishedAt: pubDate,
@@ -75,13 +94,29 @@ export async function fetchSingleFeed(feed: RssFeedConfig): Promise<FetchResult>
           sourceAuthor: item.creator || item.author || parsed.title || null,
           sourceSiteName: parsed.title || feed.name || null,
           translations: {
-            create: {
-              locale: "fa",
-              title,
-              tag: feed.name || parsed.title || "web",
-              excerpt: item.contentSnippet?.trim().slice(0, 300) || null,
-              body,
-            },
+            create: [
+              {
+                locale: "en",
+                title,
+                tag: tagName,
+                excerpt,
+                body: rawBody,
+              },
+              {
+                locale: "fa",
+                title: fa.title,
+                tag: tagName,
+                excerpt: fa.excerpt || excerpt,
+                body: fa.body,
+              },
+              {
+                locale: "ar",
+                title: ar.title,
+                tag: tagName,
+                excerpt: ar.excerpt || excerpt,
+                body: ar.body,
+              },
+            ],
           },
         },
       });
