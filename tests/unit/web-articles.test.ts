@@ -4,7 +4,35 @@ import {
   translateArticle,
   discoverCandidates,
   isWrongLanguage,
+  evaluateContentQuality,
 } from "@/lib/web-articles";
+
+describe("evaluateContentQuality", () => {
+  it("accepts a normal prose article", () => {
+    const paragraphs = Array.from({ length: 10 }, (_, i) =>
+      `Paragraph ${i} explains a real aspect of resin printing with useful detail and complete sentences for readers.`
+    ).join("\n\n");
+    const md = `## Guide\n\n${paragraphs}\n\n[Source](https://example.com)`;
+    expect(evaluateContentQuality(md)).toEqual({ ok: true });
+  });
+
+  it("rejects pages that are mostly link lists (nav/sidebar junk)", () => {
+    const items = Array.from({ length: 30 }, (_, i) =>
+      `### [Some Other Rather Long Article Title That Keeps Going Number ${i}](https://example.com/article-${i})`
+    ).join("\n\n");
+    expect(evaluateContentQuality(items)).toMatchObject({ ok: false, reason: "link_list_page" });
+  });
+
+  it("rejects pages with too little prose", () => {
+    expect(evaluateContentQuality("### How would you rate this episode?\n\nShort bit."))
+      .toMatchObject({ ok: false, reason: "low_content" });
+  });
+
+  it("ignores image syntax when judging content", () => {
+    const images = Array.from({ length: 5 }, () => "![alt](https://example.com/img.jpg)").join("\n\n");
+    expect(evaluateContentQuality(images)).toMatchObject({ ok: false, reason: "low_content" });
+  });
+});
 
 describe("isWrongLanguage", () => {
   it("flags Cyrillic contamination inside Arabic text", () => {

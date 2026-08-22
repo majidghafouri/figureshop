@@ -606,6 +606,44 @@ const TOPIC_LABELS: Record<string, Record<Locale, string>> = {
   painting: { en: "Painting", fa: "نقاشی", ar: "الرسوم" },
 };
 
+// ---------- Content quality ----------
+
+const MIN_PROSE_CHARS = 800;
+const MAX_LINK_DENSITY = 0.35;
+
+/**
+ * Rejects scraped pages that aren't real articles: pages whose extracted
+ * "content" is mostly link lists (navigation, sidebars, episode widgets)
+ * or that simply have too little prose to make a readable post.
+ */
+export function evaluateContentQuality(markdown: string): {
+  ok: boolean;
+  reason?: string;
+} {
+  const withoutImages = markdown.replace(/!\[[^\]]*\]\([^)]*\)/g, "");
+  // Visible text keeps anchor labels but drops URLs/markdown syntax.
+  const visible = withoutImages
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/[#>*_`~\-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (visible.length < MIN_PROSE_CHARS) {
+    return { ok: false, reason: "low_content" };
+  }
+  const linkChars = (() => {
+    const linkRe = /\[([^\]]*)\]\([^)]*\)/g;
+    let sum = 0;
+    let m: RegExpExecArray | null;
+    while ((m = linkRe.exec(withoutImages)) !== null) sum += m[1].length;
+    return sum;
+  })();
+  const linkDensity = visible.length > 0 ? linkChars / visible.length : 1;
+  if (linkDensity > MAX_LINK_DENSITY) {
+    return { ok: false, reason: "link_list_page" };
+  }
+  return { ok: true };
+}
+
 // ---------- Main pipeline ----------
 
 export type ImportResult = {
@@ -628,6 +666,12 @@ export async function importWebArticle(candidate: WebArticleCandidate): Promise<
 
   const scraped = await scrapeArticle(candidate.url);
   if (!scraped) return { slug, title: candidate.title || slug, status: "failed", error: "scrape_failed" };
+
+  // Reject pages without real article content before spending translations.
+  const quality = evaluateContentQuality(scraped.markdown);
+  if (!quality.ok) {
+    return { slug, title: scraped.title, status: "failed", error: quality.reason };
+  }
 
   const coverImage = await downloadCover(scraped.image || candidate.image || "");
 
