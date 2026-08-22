@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/api";
-import { importWebArticles } from "@/lib/web-articles";
+import { importWebArticles, retranslateBrokenImports } from "@/lib/web-articles";
 
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -9,6 +9,9 @@ export async function GET(req: NextRequest) {
     return fail("Unauthorized", 401);
   }
 
+  // Repair any earlier imports whose translations silently fell back to English.
+  const repaired = await retranslateBrokenImports(2);
+
   const results = await importWebArticles(2);
 
   const imported = results.filter((r) => r.status === "imported");
@@ -16,6 +19,7 @@ export async function GET(req: NextRequest) {
   const errors = results.filter((r) => r.status === "failed");
 
   return ok({
+    repaired,
     imported: imported.length,
     skipped: skipped.length,
     errors: errors.length > 0 ? errors : undefined,

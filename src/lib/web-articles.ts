@@ -372,58 +372,79 @@ export async function scrapeArticle(
 
 // ---------- Translation ----------
 
+const TRANSLATE_HOSTS = [
+  "https://translate.googleapis.com/translate_a/single",
+  "https://clients5.google.com/translate_a/single",
+];
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 async function gtxTranslate(text: string, target: "fa" | "ar"): Promise<string | null> {
   if (!text.trim()) return text;
-  try {
-    const res = await fetch(
-      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${target}&dt=t&q=${encodeURIComponent(text.slice(0, 4500))}`,
-      { headers: { "User-Agent": UA } },
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    const out = Array.isArray(data?.[0])
-      ? data[0].map((s: unknown) => (Array.isArray(s) ? s[0] : "")).join("")
-      : null;
-    return out || null;
-  } catch {
-    return null;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const host = TRANSLATE_HOSTS[attempt % TRANSLATE_HOSTS.length];
+    try {
+      const res = await fetch(
+        `${host}?client=gtx&sl=en&tl=${target}&dt=t&q=${encodeURIComponent(text.slice(0, 4500))}`,
+        { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(20000) },
+      );
+      if (res.status === 429) {
+        // Rate limited — back off generously before retrying.
+        await sleep(3000 * (attempt + 1));
+        continue;
+      }
+      if (res.ok) {
+        const data = await res.json();
+        const out = Array.isArray(data?.[0])
+          ? data[0].map((s: unknown) => (Array.isArray(s) ? s[0] : "")).join("")
+          : null;
+        if (out) return out;
+      }
+    } catch {
+      // try next host / attempt
+    }
+    await sleep(1000 * (attempt + 1));
   }
+  return null;
 }
 
 async function translateInChunks(text: string, target: "fa" | "ar"): Promise<string> {
   if (!text.trim()) return text;
-  if (text.length < 3000) {
-    const result = await gtxTranslate(text, target);
-    return result || text;
-  }
 
-  const paragraphs = text.split(/\n\n+/);
   const chunks: string[] = [];
-  let current = "";
-
-  for (const p of paragraphs) {
-    if (current.length + p.length + 2 > 2800) {
-      if (current) chunks.push(current);
-      current = p;
-    } else {
-      current = current ? `${current}\n\n${p}` : p;
+  if (text.length < 4000) {
+    chunks.push(text);
+  } else {
+    const paragraphs = text.split(/\n\n+/);
+    let current = "";
+    for (const p of paragraphs) {
+      if (current.length + p.length + 2 > 3800) {
+        if (current) chunks.push(current);
+        current = p;
+      } else {
+        current = current ? `${current}\n\n${p}` : p;
+      }
     }
+    if (current) chunks.push(current);
   }
-  if (current) chunks.push(current);
 
-  const results = await Promise.all(chunks.map((c) => gtxTranslate(c, target)));
-  return results.map((r, i) => r || chunks[i]).join("\n\n");
+  // Sequential + throttled: firing all chunks at once triggers Google 429s.
+  const results: string[] = [];
+  for (let i = 0; i < chunks.length; i++) {
+    if (i > 0) await sleep(500);
+    const result = await gtxTranslate(chunks[i], target);
+    results.push(result || chunks[i]);
+  }
+  return results.join("\n\n");
 }
 
 export async function translateArticle(
   en: { title: string; excerpt: string; body: string },
   target: "fa" | "ar",
 ): Promise<{ title: string; excerpt: string; body: string }> {
-  const [title, excerpt, body] = await Promise.all([
-    gtxTranslate(en.title, target),
-    en.excerpt ? gtxTranslate(en.excerpt, target) : Promise.resolve(null),
-    translateInChunks(en.body, target),
-  ]);
+  const title = await gtxTranslate(en.title, target);
+  const excerpt = en.excerpt ? await gtxTranslate(en.excerpt, target) : null;
+  const body = await translateInChunks(en.body, target);
   return {
     title: title || en.title,
     excerpt: excerpt || en.excerpt,
@@ -539,6 +560,14 @@ export async function importWebArticle(candidate: WebArticleCandidate): Promise<
     translateArticle({ title: scraped.title, excerpt: enExcerpt || "", body: scraped.markdown }, "ar"),
   ]);
 
+  // If translation silently failed (e.g. rate limited) the text stays English.
+  // Never publish that as fa/ar — fail the import so a future run can retry.
+  const faFailed = fa.title === scraped.title && fa.body === scraped.markdown;
+  const arFailed = ar.title === scraped.title && ar.body === scraped.markdown;
+  if (faFailed || arFailed) {
+    return { slug, title: scraped.title, status: "failed", error: "translation_failed" };
+  }
+
   const faBody = fa.body + buildSourceReference(candidate.url, siteName, "fa");
   const arBody = ar.body + buildSourceReference(candidate.url, siteName, "ar");
 
@@ -606,4 +635,75 @@ export async function importWebArticles(max = MAX_ARTICLES_PER_RUN): Promise<Imp
   }
 
   return results;
+}
+
+/**
+ * Detect imported web articles whose fa/ar translations silently fell back to
+ * English (e.g. the translate endpoint was rate limited during import) and
+ * re-translate them. Returns the slugs that were repaired.
+ */
+export async function retranslateBrokenImports(limit = 2): Promise<string[]> {
+  const fixed: string[] = [];
+
+  const posts = await prisma.blogPost.findMany({
+    where: { slug: { startsWith: "web-" }, isPublished: true },
+    include: { translations: true },
+    orderBy: { createdAt: "desc" },
+    take: 40,
+  });
+
+  for (const post of posts) {
+    if (fixed.length >= limit) break;
+    const en = post.translations.find((t) => t.locale === "en");
+    const fa = post.translations.find((t) => t.locale === "fa");
+    const ar = post.translations.find((t) => t.locale === "ar");
+    if (!en || !fa || !ar) continue;
+
+    const isUntranslated = (t: { title: string; body: string }) =>
+      t.title === en.title && t.body === en.body;
+
+    const faBroken = isUntranslated(fa);
+    const arBroken = isUntranslated(ar);
+    if (!faBroken && !arBroken) continue;
+
+    try {
+      if (faBroken) {
+        const t = await translateArticle(
+          { title: en.title, excerpt: en.excerpt ?? "", body: en.body },
+          "fa",
+        );
+        if (!(t.title === en.title && t.body === en.body)) {
+          await prisma.blogPostTranslation.update({
+            where: { postId_locale: { postId: post.id, locale: "fa" } },
+            data: { title: t.title, excerpt: t.excerpt || null, body: t.body },
+          });
+        }
+      }
+      if (arBroken) {
+        const t = await translateArticle(
+          { title: en.title, excerpt: en.excerpt ?? "", body: en.body },
+          "ar",
+        );
+        if (!(t.title === en.title && t.body === en.body)) {
+          await prisma.blogPostTranslation.update({
+            where: { postId_locale: { postId: post.id, locale: "ar" } },
+            data: { title: t.title, excerpt: t.excerpt || null, body: t.body },
+          });
+        }
+      }
+      // Re-read to confirm both locales are now translated.
+      const after = await prisma.blogPostTranslation.findMany({
+        where: { postId: post.id, locale: { in: ["fa", "ar"] } },
+        select: { locale: true, title: true, body: true },
+      });
+      const stillBroken = after.some(
+        (t) => t.title === en.title && t.body === en.body,
+      );
+      if (!stillBroken) fixed.push(post.slug);
+    } catch (err) {
+      console.error("[web-articles] retranslate failed", post.slug, err);
+    }
+  }
+
+  return fixed;
 }

@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/web-articles",
-      "schedule": "0 7 * * *"
+      "schedule": "0 */6 * * *"
     },
     {
       "path": "/api/cron/blog-rss",
