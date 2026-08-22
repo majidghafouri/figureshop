@@ -51,6 +51,12 @@ function isWrongLanguage(text) {
   const letters = clean.match(SCRIPTED_LETTER_RE);
   if (!letters || letters.length === 0) return false;
   const rtl = letters.filter((c) => RTL_LETTER_RE.test(c)).length;
+  // Short fields like titles legitimately keep proper nouns in Latin —
+  // only require that part of the text is in the target script.
+  const wordCount = clean.split(/\s+/).filter(Boolean).length;
+  if (wordCount <= 12) {
+    return !letters.some((c) => RTL_LETTER_RE.test(c));
+  }
   return rtl / letters.length < 0.5;
 }
 
@@ -91,19 +97,94 @@ async function gtxTranslate(text, target) {
 
 async function main() {
   const posts = await prisma.blogPost.findMany({
-    where: { slug: { startsWith: "web-" } },
+    where: { slug: { startsWith: "web-" }, sourceType: "RSS" },
     include: { translations: true },
     orderBy: { createdAt: "desc" },
   });
+
+  const legacyRssPosts = await prisma.blogPost.findMany({
+    where: { slug: { startsWith: "rss-" } },
+    include: { translations: true },
+    orderBy: { createdAt: "desc" },
+  });
+  posts.push(...legacyRssPosts);
 
   let checked = 0;
   let fixedFields = 0;
   let failed = 0;
 
   for (const post of posts) {
+    const siteName = post.sourceSiteName || post.sourceAuthor || "Source";
+
+    // ---- Legacy RSS posts: a single mislabeled row holding English, no en/ar.
+    if (post.slug.startsWith("rss-")) {
+      const en = post.translations.find((t) => t.locale === "en");
+      const fa = post.translations.find((t) => t.locale === "fa");
+      const ar = post.translations.find((t) => t.locale === "ar");
+
+      let english = en;
+      if (!english) {
+        const fallback = fa ?? ar;
+        if (!fallback) continue;
+        if (isWrongLanguage(fallback.title) || isWrongLanguage(fallback.body)) {
+          english = fallback;
+        } else {
+          continue;
+        }
+      }
+
+      for (const locale of ["fa", "ar"]) {
+        const tr = post.translations.find((t) => t.locale === locale);
+        const needsWork =
+          !tr ||
+          tr.id === english.id ||
+          isWrongLanguage(tr.title) ||
+          isWrongLanguage(tr.excerpt) ||
+          isWrongLanguage(tr.body);
+        if (!needsWork) continue;
+
+        console.log(`Fixing ${post.slug} [${locale}] (legacy rss import)`);
+        const t = await gtxTranslate(english.title, locale);
+        const body = await gtxTranslate(english.body ?? "", locale);
+        let excerpt = null;
+        if (english.excerpt) {
+          excerpt = await gtxTranslate(english.excerpt.slice(0, 300), locale);
+        }
+        if (!t || !body || isWrongLanguage(t) || isWrongLanguage(body)) {
+          console.log("    translation failed — leaving unchanged");
+          failed++;
+          continue;
+        }
+        const data = { title: t, excerpt, body };
+        if (tr) {
+          await prisma.blogPostTranslation.update({ where: { id: tr.id }, data });
+        } else {
+          await prisma.blogPostTranslation.create({
+            data: { postId: post.id, locale, tag: english.tag, ...data },
+          });
+        }
+        fixedFields++;
+      }
+
+      if (!post.translations.some((t) => t.locale === "en")) {
+        await prisma.blogPostTranslation.create({
+          data: {
+            postId: post.id,
+            locale: "en",
+            tag: english.tag,
+            title: english.title,
+            excerpt: english.excerpt,
+            body: english.body ?? "",
+          },
+        });
+        fixedFields++;
+      }
+      continue;
+    }
+
+    // ---- Web articles: per-field validation against the en translation.
     const en = post.translations.find((t) => t.locale === "en");
     if (!en) continue;
-    const siteName = post.sourceSiteName || post.sourceAuthor || "Source";
 
     for (const locale of ["fa", "ar"]) {
       const tr = post.translations.find((t) => t.locale === locale);

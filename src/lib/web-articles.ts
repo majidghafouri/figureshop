@@ -511,10 +511,17 @@ export function isWrongLanguage(text: string | null | undefined): boolean {
   const letters = clean.match(SCRIPTED_LETTER_RE);
   if (!letters || letters.length === 0) return false;
   const rtl = letters.filter((c) => RTL_LETTER_RE.test(c)).length;
+  // Short fields like titles legitimately keep proper nouns in Latin
+  // (e.g. "The Elusive Samurai فصل 2 ‒ قسمت 6") — only require that part of
+  // the text is actually written in the target script.
+  const wordCount = clean.split(/\s+/).filter(Boolean).length;
+  if (wordCount <= 12) {
+    return !letters.some((c) => RTL_LETTER_RE.test(c));
+  }
   return rtl / letters.length < 0.5;
 }
 
-function isFaArContentValid(t: {
+export function isFaArContentValid(t: {
   title?: string | null;
   excerpt?: string | null;
   body?: string | null;
@@ -710,6 +717,95 @@ export async function importWebArticles(max = MAX_ARTICLES_PER_RUN): Promise<Imp
   }
 
   return results;
+}
+
+/**
+ * Legacy RSS imports stored a single translation row labeled "fa" containing
+ * raw untranslated English (and no en/ar rows at all). Detect such posts and
+ * rebuild all three locales from the embedded English source text.
+ */
+export async function repairRssTranslations(limit = 2): Promise<string[]> {
+  const fixed: string[] = [];
+
+  const posts = await prisma.blogPost.findMany({
+    where: { slug: { startsWith: "rss-" }, isPublished: true },
+    include: { translations: true },
+    orderBy: { createdAt: "desc" },
+    take: 40,
+  });
+
+  for (const post of posts) {
+    if (fixed.length >= limit) break;
+    const trs = post.translations;
+    let en = trs.find((t) => t.locale === "en");
+    const fa = trs.find((t) => t.locale === "fa");
+    const ar = trs.find((t) => t.locale === "ar");
+
+    // No en row: recover the English source from a mislabeled legacy row.
+    if (!en) {
+      const fallback = fa ?? ar;
+      if (!fallback) continue;
+      if (isWrongLanguage(fallback.title) || isWrongLanguage(fallback.body)) {
+        en = fallback;
+      } else {
+        // Valid fa/ar content but no English source — nothing to rebuild from.
+        continue;
+      }
+    }
+
+    try {
+      let repaired = false;
+      for (const locale of ["fa", "ar"] as const) {
+        const existing = locale === "fa" ? fa : ar;
+        const needsWork =
+          !existing ||
+          existing.id === en.id || // the mislabeled row itself
+          isWrongLanguage(existing.title) ||
+          isWrongLanguage(existing.excerpt) ||
+          isWrongLanguage(existing.body);
+        if (!needsWork) continue;
+
+        const t = await translateArticle(
+          { title: en.title, excerpt: en.excerpt ?? "", body: en.body ?? "" },
+          locale,
+        );
+        if (!t || !isFaArContentValid(t)) continue;
+
+        const data = { title: t.title, excerpt: t.excerpt || null, body: t.body };
+        if (existing) {
+          // Also covers the mislabeled legacy row itself (id === en.id):
+          // overwrite its English content with the proper translation.
+          await prisma.blogPostTranslation.update({ where: { id: existing.id }, data });
+        } else {
+          await prisma.blogPostTranslation.create({
+            data: { postId: post.id, locale, tag: en.tag, ...data },
+          });
+        }
+        repaired = true;
+      }
+
+      // Ensure an actual "en" row exists when we recovered from a mislabeled one.
+      if (!trs.some((t) => t.locale === "en")) {
+        await prisma.blogPostTranslation.create({
+          data: {
+            postId: post.id,
+            locale: "en",
+            tag: en.tag,
+            title: en.title,
+            excerpt: en.excerpt,
+            body: en.body ?? "",
+          },
+        });
+        repaired = true;
+      }
+
+      if (repaired) fixed.push(post.slug);
+    } catch (err) {
+      console.error("[web-articles] rss repair failed", post.slug, err);
+    }
+  }
+
+  return fixed;
 }
 
 /**
