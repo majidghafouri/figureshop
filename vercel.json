@@ -5,16 +5,20 @@
       "schedule": "0 6 * * *"
     },
     {
+      "path": "/api/cron/web-articles",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/blog-rss",
+      "schedule": "0 8 * * *"
+    },
+    {
       "path": "/api/cron/cancel-expired-orders",
       "schedule": "30 6 * * *"
     },
     {
       "path": "/api/cron/telegram-daily-post",
       "schedule": "0 10 * * *"
-    },
-    {
-      "path": "/api/cron/blog-rss",
-      "schedule": "0 8 * * *"
     }
   ]
 }
