@@ -51,7 +51,7 @@ export default async function AuthPage({
       }}
     >
       <div className="container-page">
-        <AuthForm dict={dict} />
+        <AuthForm dict={dict} prefix={prefix} />
       </div>
     </div>
   );

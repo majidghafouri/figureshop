@@ -183,7 +183,7 @@ export const en: typeof fa = {
       help: [
         { label: "Track order", href: "/account" },
         { label: "FAQ", href: "/contact" },
-        { label: "Terms & conditions", href: "/contact" },
+        { label: "Terms & conditions", href: "/terms" },
         { label: "Complaints", href: "/contact" },
       ],
       contact: [
@@ -303,6 +303,10 @@ export const en: typeof fa = {
     passwordMismatch: "Passwords do not match",
     passwordTooShort: "Password must be at least 8 characters",
     passwordTooLong: "Password is too long",
+    agreePrefix: "I agree to the ",
+    termsLink: "Terms & Conditions",
+    agreeSuffix: "",
+    acceptTermsError: "Please accept the Terms & Conditions to register.",
   },
   account: {
     title: "My Account",
@@ -381,6 +385,102 @@ export const en: typeof fa = {
     reordering: "Adding to cart…",
     reorderFailed: "Failed to add items to cart",
     reorderPartial: "Some items were skipped because they are unavailable or out of stock",
+    terms: "Terms & Conditions",
+    termsHint: "Read the rules for using FigureForge and making purchases.",
+  },
+  terms: {
+    kicker: "Legal",
+    title: "Terms & Conditions",
+    updated: "Last revised: August 2026",
+    intro: "By using the FigureForge website (figureforge.ir) or placing an order, you confirm that you have read, understood, and accepted these Terms & Conditions. Please read this page carefully before creating an account or making a purchase.",
+    sections: [
+      {
+        icon: "📜",
+        heading: "1. Acceptance of Terms",
+        body: [
+          "These Terms & Conditions form an agreement between you and FigureForge governing the use of our online store. Accessing, browsing, or purchasing from the site constitutes full acceptance of these terms.",
+          "If you disagree with any part of these terms, please do not use the site. FigureForge may update these terms from time to time; the current version is always the one published on this page.",
+        ],
+      },
+      {
+        icon: "👤",
+        heading: "2. User Accounts",
+        body: [
+          "To register you must provide valid contact details (email address or mobile number). You are responsible for keeping your password confidential and for all activity that occurs under your account.",
+          "Providing false information, impersonation, or creating accounts for abusive purposes is not permitted. FigureForge may suspend or permanently terminate such accounts.",
+        ],
+      },
+      {
+        icon: "🛍️",
+        heading: "3. Products, Authenticity & Stock",
+        body: [
+          "All figures and collectibles offered on FigureForge are authentic and shipped with an authenticity guarantee. Product photos show the actual item; very minor cosmetic details such as color variations between production runs may differ slightly.",
+          "Stock levels are updated in real time. If an item sells out after you place an order, any amount paid will be refunded to the original payment method within a maximum of 72 business hours.",
+        ],
+      },
+      {
+        icon: "💳",
+        heading: "4. Pricing & Payment",
+        body: [
+          "Prices are listed in Tomans and include VAT where applicable. FigureForge works hard to display accurate pricing; in the event of an obvious technical pricing error, we reserve the right to cancel the affected order and notify you.",
+          "Payments are processed through trusted bank gateways; your card details are never stored on our site. Discount codes are valid only during their stated period and under their specific conditions.",
+        ],
+      },
+      {
+        icon: "🚚",
+        heading: "5. Shipping & Delivery",
+        body: [
+          "Orders are securely packed and dispatched within 1–3 business days after payment is confirmed. Delivery time depends on your city and the chosen postal service and is the responsibility of the carrier.",
+          "If your package arrives damaged, please raise an objection with the postal officer before signing for it, and contact our support team within 48 hours.",
+        ],
+      },
+      {
+        icon: "↩️",
+        heading: "6. Withdrawal, Returns & Warranty",
+        body: [
+          "In accordance with Iran's E-Commerce Law, you may withdraw from your purchase within 7 days of receiving the item without giving a reason, provided the product is unopened and all original packaging and accessories remain intact.",
+          "Opened, customized, or pre-order figures are not eligible for withdrawal unless they are defective or differ from what was ordered. Defective or wrongly shipped items are replaced or refunded at our expense.",
+        ],
+      },
+      {
+        icon: "🔒",
+        heading: "7. Privacy",
+        body: [
+          "We only collect information necessary to provide our services (such as email, mobile number, and order history) and use it to process orders, provide support, and improve your shopping experience.",
+          "Your personal data is never shared with third parties without your consent, except as required by law or for the purpose of delivering your order (postal service).",
+        ],
+      },
+      {
+        icon: "©️",
+        heading: "8. Intellectual Property",
+        body: [
+          "All content on the site — including text, logos, graphic design, and imagery — belongs to FigureForge. Reproduction or commercial use without written permission is prohibited.",
+          "Character names, likenesses, and brand assets related to the figures belong to their respective rights holders; FigureForge is an independent retailer of authentic products.",
+        ],
+      },
+      {
+        icon: "🚫",
+        heading: "9. Prohibited Use",
+        body: [
+          "Bots, scraping, attempts to breach or disrupt the site's operation, bulk purchases intended to hoard stock, and abuse of discount codes are prohibited and may result in legal action.",
+        ],
+      },
+      {
+        icon: "✉️",
+        heading: "10. Newsletter & Communications",
+        body: [
+          "By optionally joining our newsletter you agree to receive emails introducing new articles and store news. You can unsubscribe at any time using the link at the bottom of every email.",
+        ],
+      },
+      {
+        icon: "⚖️",
+        heading: "11. Governing Law, Changes & Contact",
+        body: [
+          "These terms are governed by the laws of the Islamic Republic of Iran. Any dispute will first be addressed through negotiation and then resolved by the competent courts of Iran.",
+          "For any questions about these terms, reach us through the contact page or at info@figureforge.ir.",
+        ],
+      },
+    ],
   },
   payment: {
     title: "Order payment",

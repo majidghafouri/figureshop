@@ -8,11 +8,12 @@ type AuthMode = "login" | "register" | "forgot";
 
 const AUTH_STORAGE_KEY = "figureforge-auth-state-v1";
 
-export default function AuthForm({ dict }: { dict: Dictionary }) {
+export default function AuthForm({ dict, prefix }: { dict: Dictionary; prefix: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mode, setMode] = useState<AuthMode>("login");
   const [step, setStep] = useState<"email" | "code">("email");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [identifier, setIdentifier] = useState("");
   const [digits, setDigits] = useState<string[]>(Array(5).fill(""));
   const [password, setPassword] = useState("");
@@ -149,6 +150,10 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
   const sendCode = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setError(null);
+    if (mode === "register" && !acceptedTerms) {
+      setError(dict.auth.acceptTermsError);
+      return;
+    }
     const identifierPayload = resolveIdentifier(identifier);
     if (!identifierPayload) {
       setError(dict.auth.errorInvalidEmail);
@@ -385,6 +390,31 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
               <p className="text-[13px] font-[850] text-[var(--danger)] bg-[var(--danger-softer)] border border-[var(--danger-soft)] rounded-[12px] px-3 py-2.5">
                 {error}
               </p>
+            )}
+            {mode === "register" && (
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => {
+                    setAcceptedTerms(e.target.checked);
+                    if (e.target.checked) setError(null);
+                  }}
+                  className="mt-0.5 w-[18px] h-[18px] accent-[var(--primary)] shrink-0"
+                />
+                <span className="text-[12.5px] leading-[1.9] font-[800] text-[var(--text-2)]">
+                  {dict.auth.agreePrefix}
+                  <a
+                    href={`${prefix}/terms`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[var(--primary)] font-[950] hover:underline underline-offset-4"
+                  >
+                    {dict.auth.termsLink}
+                  </a>
+                  {dict.auth.agreeSuffix}
+                </span>
+              </label>
             )}
             <button
               type="button"
