@@ -99,22 +99,40 @@ export default async function AccountPage({
             }}
           />
 
-          <a
-            href={`${prefix}/terms`}
-            className="mt-4 flex items-center gap-3 bg-[var(--surface)] border border-[var(--line)] rounded-[20px] p-4 transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(20,45,90,0.08)]"
-          >
-            <span className="w-[42px] h-[42px] shrink-0 rounded-[12px] product-img-bg border border-[var(--soft-line)] flex items-center justify-center text-[20px]">
-              📜
-            </span>
-            <span>
-              <span className="block text-[13.5px] font-[1000] text-[var(--text)]">
-                {dict.account.terms}
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <a
+              href={`${prefix}/terms`}
+              className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--line)] rounded-[20px] p-4 transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(20,45,90,0.08)]"
+            >
+              <span className="w-[42px] h-[42px] shrink-0 rounded-[12px] product-img-bg border border-[var(--soft-line)] flex items-center justify-center text-[20px]">
+                📜
               </span>
-              <span className="block mt-0.5 text-[11.5px] font-[800] text-[var(--muted)]">
-                {dict.account.termsHint}
+              <span>
+                <span className="block text-[13.5px] font-[1000] text-[var(--text)]">
+                  {dict.account.terms}
+                </span>
+                <span className="block mt-0.5 text-[11.5px] font-[800] text-[var(--muted)]">
+                  {dict.account.termsHint}
+                </span>
               </span>
-            </span>
-          </a>
+            </a>
+            <a
+              href={`${prefix}/faq`}
+              className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--line)] rounded-[20px] p-4 transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(20,45,90,0.08)]"
+            >
+              <span className="w-[42px] h-[42px] shrink-0 rounded-[12px] product-img-bg border border-[var(--soft-line)] flex items-center justify-center text-[20px]">
+                💡
+              </span>
+              <span>
+                <span className="block text-[13.5px] font-[1000] text-[var(--text)]">
+                  {dict.faq.title}
+                </span>
+                <span className="block mt-0.5 text-[11.5px] font-[800] text-[var(--muted)]">
+                  {dict.faq.kicker}
+                </span>
+              </span>
+            </a>
+          </div>
 
           {orders.length === 0 ? (
             <div className="mt-4 bg-[var(--surface)] border border-[var(--line)] rounded-[24px] p-14 text-center">

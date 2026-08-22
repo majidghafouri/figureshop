@@ -182,7 +182,7 @@ export const en: typeof fa = {
       ],
       help: [
         { label: "Track order", href: "/account" },
-        { label: "FAQ", href: "/contact" },
+        { label: "FAQ", href: "/faq" },
         { label: "Terms & conditions", href: "/terms" },
         { label: "Complaints", href: "/contact" },
       ],
@@ -478,6 +478,99 @@ export const en: typeof fa = {
         body: [
           "These terms are governed by the laws of the Islamic Republic of Iran. Any dispute will first be addressed through negotiation and then resolved by the competent courts of Iran.",
           "For any questions about these terms, reach us through the contact page or at info@figureforge.ir.",
+        ],
+      },
+    ],
+  },
+  faq: {
+    kicker: "Help Center",
+    title: "Frequently Asked Questions",
+    intro: "We've gathered answers to the most common questions about shopping at FigureForge. If your question isn't covered here, our support team is ready to help via the contact page.",
+    categories: [
+      {
+        icon: "🛒",
+        heading: "Orders & Shopping",
+        items: [
+          {
+            q: "How do I place an order?",
+            a: "Simply add the items you want to your cart, sign in to your account (or register), and complete the checkout with an online bank gateway or cash on delivery.",
+          },
+          {
+            q: "Do I need an account to buy?",
+            a: "Yes — an account is required so you can track your orders. Registration takes less than a minute.",
+          },
+          {
+            q: "What if a product is out of stock?",
+            a: "Sold-out figures are usually restocked. Save the product page or follow us on social media to be the first to know when new stock arrives.",
+          },
+        ],
+      },
+      {
+        icon: "💳",
+        heading: "Payment",
+        items: [
+          {
+            q: "Which payment methods do you accept?",
+            a: "Online payment through secure bank gateways and cash on delivery for selected cities. Your card details are never stored on our site.",
+          },
+          {
+            q: "How do I use a discount code?",
+            a: "Enter the code in the dedicated field on the cart page and apply it. Each code is valid only during its stated period and under its specific conditions.",
+          },
+          {
+            q: "I paid but my order wasn't placed!",
+            a: "Don't worry — if the amount was deducted, it's automatically refunded within 72 business hours. If the problem persists, contact support.",
+          },
+        ],
+      },
+      {
+        icon: "🚚",
+        heading: "Shipping & Delivery",
+        items: [
+          {
+            q: "When will my order ship?",
+            a: "Orders are securely packed with protective materials and dispatched within 1–3 business days after payment is confirmed.",
+          },
+          {
+            q: "How much is shipping?",
+            a: "Shipping cost depends on weight, destination, and the chosen postal service; it's shown at checkout before you pay.",
+          },
+          {
+            q: "My item arrived damaged!",
+            a: "File an objection with the postal officer before signing for the package, then contact our support team within 48 hours for a replacement or refund.",
+          },
+        ],
+      },
+      {
+        icon: "↩️",
+        heading: "Returns & Warranty",
+        items: [
+          {
+            q: "What is your withdrawal policy?",
+            a: "Under Iran's E-Commerce Law, you can withdraw within 7 days of delivery without giving a reason, as long as the product is unopened and the original packaging intact.",
+          },
+          {
+            q: "Can I return an opened figure?",
+            a: "No — opened or customized products are not eligible for returns unless they are defective or differ from what was ordered.",
+          },
+          {
+            q: "How do you guarantee authenticity?",
+            a: "Every FigureForge figure is authentic and ships with our authenticity guarantee. If any item is proven otherwise, you receive a full refund.",
+          },
+        ],
+      },
+      {
+        icon: "👤",
+        heading: "Account & Privacy",
+        items: [
+          {
+            q: "How is my data protected?",
+            a: "We store only essential data and never share it with third parties without your consent; full details are in our Terms & Conditions.",
+          },
+          {
+            q: "I changed my phone/email — what now?",
+            a: "You can edit your contact details from the account page. Changing a verified email or phone number requires contacting support.",
+          },
         ],
       },
     ],
