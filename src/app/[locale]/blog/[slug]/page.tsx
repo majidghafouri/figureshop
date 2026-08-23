@@ -6,6 +6,7 @@ import { getDictionary } from "@/lib/i18n-dictionaries";
 import { buildMetadata, buildArticleJsonLd, buildBreadcrumbJsonLd } from "@/lib/seo";
 import { getPostBySlug, getRelatedPosts } from "@/lib/blog";
 import BlogBody from "@/components/BlogBody";
+import Reactions from "@/components/Reactions";
 import Reveal from "@/components/Reveal";
 import JsonLd from "@/components/JsonLd";
 
@@ -161,6 +162,10 @@ export default async function BlogPostPage({
 
             <div className="mt-7">
               <BlogBody body={post.body} />
+            </div>
+
+            <div className="mt-9">
+              <Reactions targetType="ARTICLE" targetId={post.id} dict={dict.reactions} />
             </div>
 
             <Link

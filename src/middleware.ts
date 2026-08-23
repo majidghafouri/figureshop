@@ -33,6 +33,16 @@ export function middleware(req: NextRequest) {
   response.cookies.set("locale", locale, { path: "/" });
   response.headers.set("x-pathname", pathname);
 
+  // Anonymous visitor UID so reactions/analytics can identify guests.
+  if (!req.cookies.get("ff_vid")?.value) {
+    response.cookies.set("ff_vid", crypto.randomUUID(), {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365 * 2,
+      sameSite: "lax",
+      httpOnly: true,
+    });
+  }
+
   return response;
 }
 

@@ -6,6 +6,7 @@ import {
   getRequestMeta,
   isAnalyticsEventType,
 } from "@/lib/analytics";
+import { getVisitorIdFromRequest, registerVisitor } from "@/lib/reactions";
 
 export async function POST(req: NextRequest) {
   const body = parseJson<{
@@ -36,6 +37,11 @@ export async function POST(req: NextRequest) {
     userAgent: meta.userAgent,
     referrer: meta.referrer,
   });
+
+  // Keep the visitor registry (IP / location / UA) fresh for admin insights.
+  if (getVisitorIdFromRequest(req)) {
+    await registerVisitor(req);
+  }
 
   return ok({ tracked: true }, 201);
 }

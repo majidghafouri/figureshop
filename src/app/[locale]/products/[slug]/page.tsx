@@ -11,6 +11,7 @@ import PurchasePanel from "@/components/PurchasePanel";
 import ProductGrid from "@/components/ProductGrid";
 import Reveal from "@/components/Reveal";
 import ProductMusicPlayer from "@/components/ProductMusicPlayer";
+import Reactions from "@/components/Reactions";
 import JsonLd from "@/components/JsonLd";
 import { trackEvent } from "@/lib/analytics";
 
@@ -266,6 +267,10 @@ export default async function ProductDetailPage({
                 </p>
               </div>
             )}
+
+            <div className="mt-7">
+              <Reactions targetType="PRODUCT" targetId={p.id} dict={dict.reactions} />
+            </div>
           </div>
         </div>
 

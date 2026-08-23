@@ -22,21 +22,22 @@ enum OtpPurpose {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  phone         String?  @unique
-  email         String?  @unique
-  name          String?
-  password      String?
-  phoneVerified Boolean  @default(false)
-  emailVerified Boolean  @default(false)
-  locale        String   @default("fa")
-  role      Role     @default(USER)
-  cart      Cart?
-  orders    Order[]
-  coupons   Coupon[]
+  id                      String                 @id @default(cuid())
+  phone                   String?                @unique
+  email                   String?                @unique
+  name                    String?
+  password                String?
+  phoneVerified           Boolean                @default(false)
+  emailVerified           Boolean                @default(false)
+  locale                  String                 @default("fa")
+  role                    Role                   @default(USER)
+  cart                    Cart?
+  orders                  Order[]
+  coupons                 Coupon[]
   newsletterSubscriptions NewsletterSubscriber[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  visitors                Visitor[]
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
 
   @@index([email])
 }
@@ -50,7 +51,7 @@ model OtpCode {
   expiresAt DateTime
   consumed  Boolean    @default(false)
   attempts  Int        @default(0)
-  createdAt DateTime @default(now())
+  createdAt DateTime   @default(now())
 
   @@index([phone, createdAt])
   @@index([email, createdAt])
@@ -85,49 +86,49 @@ model CategoryTranslation {
 }
 
 model Product {
-  id            String              @id @default(cuid())
-  slug          String              @unique
-  sku           String?             @unique
-  categoryId    String?
-  brand         String?
-  price         Int
+  id             String               @id @default(cuid())
+  slug           String               @unique
+  sku            String?              @unique
+  categoryId     String?
+  brand          String?
+  price          Int
   compareAtPrice Int?
-  stock         Int                 @default(0)
-  isActive      Boolean             @default(true)
-  isFeatured    Boolean             @default(false)
-  isSpecial     Boolean             @default(false)
-  hasDiscount   Boolean             @default(false)
-  heightCm      String?
-  material      String?
-  weightGrams   Int?
-  images        String[]
-  musicUrl      String?
-  musicTitle    String?
-  bgImage       String?
-  bgOpacity     Float    @default(0.15)
-  bgBlur        Int      @default(20)
-  cursorUrl     String?
-  cursorName    String?
-  category      Category?           @relation(fields: [categoryId], references: [id])
-  translations  ProductTranslation[]
-  cartItems     CartItem[]
-  orderItems    OrderItem[]
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
+  stock          Int                  @default(0)
+  isActive       Boolean              @default(true)
+  isFeatured     Boolean              @default(false)
+  isSpecial      Boolean              @default(false)
+  hasDiscount    Boolean              @default(false)
+  heightCm       String?
+  material       String?
+  weightGrams    Int?
+  images         String[]
+  musicUrl       String?
+  musicTitle     String?
+  bgImage        String?
+  bgOpacity      Float                @default(0.15)
+  bgBlur         Int                  @default(20)
+  cursorUrl      String?
+  cursorName     String?
+  category       Category?            @relation(fields: [categoryId], references: [id])
+  translations   ProductTranslation[]
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 
   @@index([categoryId])
   @@index([brand])
 }
 
 model ProductTranslation {
-  id              String  @id @default(cuid())
-  productId       String
-  locale          String
-  name            String
+  id               String  @id @default(cuid())
+  productId        String
+  locale           String
+  name             String
   shortDescription String?
-  description     String?
-  features        String? @db.Text
-  product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  description      String?
+  features         String? @db.Text
+  product          Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, locale])
 }
@@ -135,23 +136,23 @@ model ProductTranslation {
 // ---------- Blog & Content ----------
 
 model BlogPost {
-  id           String                @id @default(cuid())
-  slug         String                @unique
-  coverImage   String?
-  coverSvg     String?               @db.Text
-  category     String?
-  readingTime  Int?                  @default(0)
-  isPublished  Boolean @default(false)
-  isTrending   Boolean @default(false)
-  publishedAt  DateTime?
+  id                   String                @id @default(cuid())
+  slug                 String                @unique
+  coverImage           String?
+  coverSvg             String?               @db.Text
+  category             String?
+  readingTime          Int?                  @default(0)
+  isPublished          Boolean               @default(false)
+  isTrending           Boolean               @default(false)
+  publishedAt          DateTime?
   newsletterNotifiedAt DateTime?
-  sourceType   BlogSourceType        @default(ORIGINAL)
-  sourceUrl    String?
-  sourceAuthor String?
-  sourceSiteName String?
-  translations BlogPostTranslation[]
-  createdAt    DateTime              @default(now())
-  updatedAt    DateTime              @updatedAt
+  sourceType           BlogSourceType        @default(ORIGINAL)
+  sourceUrl            String?
+  sourceAuthor         String?
+  sourceSiteName       String?
+  translations         BlogPostTranslation[]
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
 
   @@index([isPublished, publishedAt])
   @@index([isTrending])
@@ -160,14 +161,14 @@ model BlogPost {
 }
 
 model BlogPostTranslation {
-  id     String   @id @default(cuid())
-  postId String
-  locale String
-  tag    String?
-  title  String
+  id      String   @id @default(cuid())
+  postId  String
+  locale  String
+  tag     String?
+  title   String
   excerpt String?
-  body   String   @db.Text
-  post   BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  body    String   @db.Text
+  post    BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([postId, locale])
 }
@@ -195,12 +196,12 @@ model Cart {
 }
 
 model CartItem {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   cartId    String
   productId String
-  quantity  Int      @default(1)
-  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int     @default(1)
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
 
   @@unique([cartId, productId])
 }
@@ -225,31 +226,31 @@ enum PaymentMethod {
 }
 
 model Order {
-  id            String       @id @default(cuid())
-  orderNumber   Int          @unique @default(autoincrement())
-  userId        String
-  status        OrderStatus  @default(PENDING)
-  paymentMethod PaymentMethod
-  paymentToken  String?
-  paidAt        DateTime?
-  cancelledAt   DateTime?
-  cancelSource  String?
+  id                 String        @id @default(cuid())
+  orderNumber        Int           @unique @default(autoincrement())
+  userId             String
+  status             OrderStatus   @default(PENDING)
+  paymentMethod      PaymentMethod
+  paymentToken       String?
+  paidAt             DateTime?
+  cancelledAt        DateTime?
+  cancelSource       String?
   deadlineExtendedAt DateTime?
-  fullName      String
-  phone         String
-  address       String
-  postalCode    String?
-  note          String?
-  subtotal      Int
-  shipping      Int          @default(0)
-  discount      Int          @default(0)
-  total         Int
-  couponId      String?
-  items         OrderItem[]
-  user          User         @relation(fields: [userId], references: [id])
-  coupon        Coupon?      @relation(fields: [couponId], references: [id])
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  fullName           String
+  phone              String
+  address            String
+  postalCode         String?
+  note               String?
+  subtotal           Int
+  shipping           Int           @default(0)
+  discount           Int           @default(0)
+  total              Int
+  couponId           String?
+  items              OrderItem[]
+  user               User          @relation(fields: [userId], references: [id])
+  coupon             Coupon?       @relation(fields: [couponId], references: [id])
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
   @@index([userId])
   @@index([couponId])
@@ -273,21 +274,21 @@ enum CouponType {
 }
 
 model Coupon {
-  id               String     @id @default(cuid())
-  code             String     @unique
-  type             CouponType
-  value            Int
-  minOrderAmount   Int?
+  id                String     @id @default(cuid())
+  code              String     @unique
+  type              CouponType
+  value             Int
+  minOrderAmount    Int?
   maxDiscountAmount Int?
-  usageLimit       Int?
-  usedCount        Int        @default(0)
-  validFrom        DateTime
-  validUntil       DateTime
-  isActive         Boolean    @default(true)
-  orders           Order[]
-  allowedUsers     User[]
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
+  usageLimit        Int?
+  usedCount         Int        @default(0)
+  validFrom         DateTime
+  validUntil        DateTime
+  isActive          Boolean    @default(true)
+  orders            Order[]
+  allowedUsers      User[]
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   @@index([code])
   @@index([isActive, validFrom, validUntil])
@@ -326,9 +327,9 @@ enum BlogSourceType {
 }
 
 model AnalyticsEvent {
-  id           String              @id @default(cuid())
+  id           String             @id @default(cuid())
   type         AnalyticsEventType
-  path         String              @default("/")
+  path         String             @default("/")
   locale       String?
   productId    String?
   categorySlug String?
@@ -338,7 +339,7 @@ model AnalyticsEvent {
   referrer     String?
   userAgent    String?
   ip           String?
-  createdAt    DateTime            @default(now())
+  createdAt    DateTime           @default(now())
 
   @@index([type, createdAt])
   @@index([createdAt])
@@ -364,15 +365,54 @@ model Setting {
 // ---------- Newsletter ----------
 
 model NewsletterSubscriber {
-  id               String    @id @default(cuid())
-  email            String    @unique
+  id               String   @id @default(cuid())
+  email            String   @unique
   userId           String?
-  user             User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  locale           String    @default("fa")
-  isActive         Boolean   @default(true)
-  unsubscribeToken String    @unique
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  user             User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  locale           String   @default("fa")
+  isActive         Boolean  @default(true)
+  unsubscribeToken String   @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@index([isActive])
+}
+
+// ---------- Reactions / Visitors ----------
+
+enum ReactionTarget {
+  PRODUCT
+  ARTICLE
+}
+
+// A visitor is identified by the UUID stored in the ff_vid cookie. Registered
+// users get their visitor row linked to their account so admin sees both.
+model Visitor {
+  id          String     @id // client UUID from the ff_vid cookie
+  userId      String?    @unique
+  user        User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ipAddress   String?
+  country     String?
+  city        String?
+  userAgent   String?
+  firstSeenAt DateTime   @default(now())
+  lastSeenAt  DateTime   @default(now())
+  reactions   Reaction[]
+
+  @@index([ipAddress])
+  @@index([lastSeenAt])
+}
+
+model Reaction {
+  id         String         @id @default(cuid())
+  targetType ReactionTarget
+  targetId   String
+  kind       String
+  visitorId  String
+  visitor    Visitor        @relation(fields: [visitorId], references: [id], onDelete: Cascade)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@unique([targetType, targetId, visitorId])
+  @@index([targetType, targetId])
 }
