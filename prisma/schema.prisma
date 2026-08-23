@@ -36,6 +36,7 @@ model User {
   coupons                 Coupon[]
   newsletterSubscriptions NewsletterSubscriber[]
   visitors                Visitor[]
+  favorites               Favorite[]
   createdAt               DateTime               @default(now())
   updatedAt               DateTime               @updatedAt
 
@@ -113,6 +114,7 @@ model Product {
   translations   ProductTranslation[]
   cartItems      CartItem[]
   orderItems     OrderItem[]
+  favorites      Favorite[]
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
 
@@ -415,4 +417,17 @@ model Reaction {
 
   @@unique([targetType, targetId, visitorId])
   @@index([targetType, targetId])
+}
+
+// Products a registered user has favorited (hearted).
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([productId])
 }

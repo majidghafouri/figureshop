@@ -12,6 +12,8 @@ import ProductGrid from "@/components/ProductGrid";
 import Reveal from "@/components/Reveal";
 import ProductMusicPlayer from "@/components/ProductMusicPlayer";
 import Reactions from "@/components/Reactions";
+import FavoriteButton from "@/components/FavoriteButton";
+import { getSessionUser } from "@/lib/auth";
 import JsonLd from "@/components/JsonLd";
 import { trackEvent } from "@/lib/analytics";
 
@@ -65,6 +67,16 @@ export default async function ProductDetailPage({
     path: `${prefix}/products/${p.slug}`,
     locale,
   });
+
+  const sessionUser = await getSessionUser();
+  const [favorited, favoriteCount] = await Promise.all([
+    sessionUser
+      ? prisma.favorite.findUnique({
+          where: { userId_productId: { userId: sessionUser.id, productId: p.id } },
+        })
+      : Promise.resolve(null),
+    prisma.favorite.count({ where: { productId: p.id } }),
+  ]);
 
   const related = await prisma.product.findMany({
     where: {
@@ -204,6 +216,17 @@ export default async function ProductDetailPage({
                   ٪{percent} {dict.products.discount}
                 </span>
               )}
+              <div className="mb-1 ms-auto">
+                <FavoriteButton
+                  productId={p.id}
+                  isLoggedIn={!!sessionUser}
+                  initialFavorited={!!favorited}
+                  initialCount={favoriteCount}
+                  loginHref={`${prefix}/auth?next=${encodeURIComponent(`${prefix}/products/${p.slug}`)}`}
+                  dict={dict.favorites.button}
+                  popupDict={dict.authPopup}
+                />
+              </div>
             </div>
 
             {/* Purchase panel */}

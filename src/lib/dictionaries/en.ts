@@ -218,6 +218,18 @@ export const en: typeof fa = {
     sad: "Sad",
     fire: "Fire",
   },
+  favorites: {
+    button: {
+      add: "Add to favorites",
+      remove: "Remove from favorites",
+    },
+  },
+  authPopup: {
+    title: "Login required",
+    body: "Please sign in to your account to add this to your favorites.",
+    login: "Sign in / Register",
+    cancel: "Later",
+  },
   cart: {
     title: "Shopping Cart",
     empty: "Your cart is empty",
