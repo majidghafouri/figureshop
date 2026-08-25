@@ -895,21 +895,12 @@ async function main() {
   }
 
   for (const p of PRODUCTS) {
+    const existing = await prisma.product.findUnique({ where: { slug: p.slug } });
+    if (existing) continue;
+
     const cat = await prisma.category.findUnique({ where: { slug: p.cat } });
-    await prisma.product.upsert({
-      where: { slug: p.slug },
-      update: {
-        sku: p.sku,
-        categoryId: cat?.id ?? null,
-        brand: p.brand,
-        heightCm: p.height,
-        material: p.material,
-        weightGrams: p.weight,
-        images: p.images,
-        musicUrl: p.musicUrl ?? `/music/${p.slug}.mp3`,
-        musicTitle: p.musicTitle ?? PRODUCT_MUSIC[p.slug] ?? null,
-      },
-      create: {
+    const product = await prisma.product.create({
+      data: {
         slug: p.slug,
         sku: p.sku,
         categoryId: cat?.id ?? null,
@@ -929,16 +920,9 @@ async function main() {
         musicTitle: p.musicTitle ?? PRODUCT_MUSIC[p.slug] ?? null,
       },
     });
-    const product = await prisma.product.findUnique({ where: { slug: p.slug } });
     for (const loc of ["fa", "en", "ar"]) {
-      await prisma.productTranslation.upsert({
-        where: { productId_locale: { productId: product.id, locale: loc } },
-        update: {
-          name: p.name[loc],
-          shortDescription: p.short[loc],
-          features: JSON.stringify(p.features[loc]),
-        },
-        create: {
+      await prisma.productTranslation.create({
+        data: {
           productId: product.id,
           locale: loc,
           name: p.name[loc],
@@ -962,17 +946,16 @@ async function main() {
     const publishedAt = b.published
       ? new Date(Date.now() - b.daysAgo * 86400000)
       : null;
+    const existingPost = await prisma.blogPost.findUnique({ where: { slug: b.slug } });
+    if (existingPost) {
+      if (b.published) publishedCount++;
+      else bankCount++;
+      continue;
+    }
+
     const createdAt = new Date(Date.now() - b.createdDaysAgo * 86400000);
-    await prisma.blogPost.upsert({
-      where: { slug: b.slug },
-      update: {
-        coverImage: `/blog/${b.slug}.svg`,
-        category: b.category,
-        readingTime: b.readingTime,
-        isPublished: b.published,
-        publishedAt,
-      },
-      create: {
+    const post = await prisma.blogPost.create({
+      data: {
         slug: b.slug,
         coverImage: `/blog/${b.slug}.svg`,
         category: b.category,
@@ -982,17 +965,9 @@ async function main() {
         createdAt,
       },
     });
-    const post = await prisma.blogPost.findUnique({ where: { slug: b.slug } });
     for (const loc of ["fa", "en", "ar"]) {
-      await prisma.blogPostTranslation.upsert({
-        where: { postId_locale: { postId: post.id, locale: loc } },
-        update: {
-          tag: b.tag[loc],
-          title: b.title[loc],
-          excerpt: b.excerpt[loc],
-          body: b.body[loc],
-        },
-        create: {
+      await prisma.blogPostTranslation.create({
+        data: {
           postId: post.id,
           locale: loc,
           tag: b.tag[loc],
