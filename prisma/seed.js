@@ -290,7 +290,7 @@ const PRODUCTS = [
     price: 2200000,
     stock: 10,
     height: "20 cm",
-    material: "Resin",
+    material: "PLA",
     weight: 280,
     images: [
       "/uploads/products/_____-__-__-_-____-____-______-4.jpg",
@@ -715,7 +715,7 @@ const PRODUCTS = [
     stock: 8,
     feat: true,
     height: "18 cm",
-    material: "Resin",
+    material: "PLA",
     weight: 250,
     images: [
       "/uploads/products/harry-potter-01.jpg",
@@ -744,7 +744,7 @@ const PRODUCTS = [
     stock: 8,
     feat: true,
     height: "18 cm",
-    material: "Resin",
+    material: "PLA",
     weight: 250,
     images: [
       "/uploads/products/hermione-granger-01.jpg",
@@ -771,7 +771,7 @@ const PRODUCTS = [
     stock: 8,
     feat: true,
     height: "18 cm",
-    material: "Resin",
+    material: "PLA",
     weight: 250,
     images: [
       "/uploads/products/ron-weasley-01.jpg",
@@ -798,7 +798,7 @@ const PRODUCTS = [
     stock: 8,
     feat: true,
     height: "12 cm",
-    material: "Resin",
+    material: "PLA",
     weight: 200,
     images: [
       "/uploads/products/gandalf99.jpg",
@@ -825,7 +825,7 @@ const PRODUCTS = [
     stock: 8,
     feat: true,
     height: "10 cm",
-    material: "Resin",
+    material: "PLA",
     weight: 180,
     images: [
       "/uploads/products/frodo99.jpg",
@@ -852,7 +852,7 @@ const PRODUCTS = [
     stock: 8,
     feat: true,
     height: "10 cm",
-    material: "Resin",
+    material: "PLA",
     weight: 180,
     images: [
       "/uploads/products/walter99.jpg",
