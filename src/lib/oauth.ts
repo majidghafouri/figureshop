@@ -243,12 +243,25 @@ export async function exchangeAppleCode(
 
 // ---------- Telegram ----------
 
-export async function verifyTelegramAuth(data: Record<string, string>): Promise<boolean> {
+export interface TelegramVerifyDebug {
+  ok: boolean;
+  tokenLen: number;
+  tokenStart: string;
+  keys: string[];
+  checkString: string;
+  expectedHash: string;
+  receivedHash: string;
+  authDateAge: number;
+}
+
+export async function verifyTelegramAuth(
+  data: Record<string, string>
+): Promise<boolean | TelegramVerifyDebug> {
   const botToken = process.env.TELEGRAM_LOGIN_BOT_TOKEN;
-  if (!botToken) return false;
+  if (!botToken) return { ok: false, tokenLen: 0, tokenStart: "", keys: [], checkString: "", expectedHash: "", receivedHash: "", authDateAge: 0 };
 
   const { hash, ...rest } = data;
-  if (!hash) return false;
+  if (!hash) return { ok: false, tokenLen: botToken.length, tokenStart: botToken.slice(0, 10), keys: [], checkString: "", expectedHash: "", receivedHash: "", authDateAge: 0 };
 
   const checkString = Object.keys(rest)
     .sort()
@@ -273,15 +286,25 @@ export async function verifyTelegramAuth(data: Record<string, string>): Promise<
     ["sign"]
   );
 
-  return crypto.subtle
+  const result = await crypto.subtle
     .sign("HMAC", key, encoder.encode(checkString))
     .then((sig) => {
       const hex = Array.from(new Uint8Array(sig))
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
-      return hex === hash;
+      return { ok: hex === hash, expectedHash: hex };
     })
-    .catch(() => false);
+    .catch((e) => ({ ok: false, expectedHash: "error:" + String(e) }));
+
+  return {
+    ...result,
+    tokenLen: botToken.length,
+    tokenStart: botToken.slice(0, 10),
+    keys: Object.keys(rest).sort(),
+    checkString,
+    receivedHash: hash,
+    authDateAge: Math.floor(Date.now() / 1000) - Number(data.auth_date || 0),
+  } as TelegramVerifyDebug;
 }
 
 // ---------- Shared: find or create user ----------

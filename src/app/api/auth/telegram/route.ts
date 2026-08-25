@@ -22,13 +22,11 @@ export async function POST(req: NextRequest) {
   if (authAge > 300) return fail("expired");
 
   // Verify hash
-  const valid = await verifyTelegramAuth(body as unknown as Record<string, string>);
+  const result = await verifyTelegramAuth(body as unknown as Record<string, string>);
+  const valid = typeof result === "boolean" ? result : result.ok;
   if (!valid) {
-    const keys = Object.keys(body as Record<string, unknown>).filter((k) => k !== "hash").sort();
-    return fail("invalid_hash", 400, {
-      keys,
-      auth_date_age: Math.floor(Date.now() / 1000) - Number(body.auth_date),
-    });
+    const debug = typeof result === "object" ? (result as unknown as Record<string, unknown>) : undefined;
+    return fail("invalid_hash", 400, debug);
   }
 
   const info: OAuthUserInfo = {
