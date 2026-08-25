@@ -302,9 +302,9 @@ const PRODUCTS = [
       ar: "تان تان وكلبه الوفي ميلو في وضع ساحر.",
     },
     features: {
-      fa: ["طراحی رزین باکیفیت", "پایه نمایش همراه"],
-      en: ["High quality resin sculpt", "Display base included"],
-      ar: ["نحت ريزين عالي الجودة", "قاعدة عرض مرفقة"],
+      fa: ["طراحی باکیفیت", "پایه نمایش همراه"],
+      en: ["High quality sculpt", "Display base included"],
+      ar: ["نحت عالي الجودة", "قاعدة عرض مرفقة"],
     },
   },
   {
@@ -729,9 +729,9 @@ const PRODUCTS = [
       ar: "تمثال هاري بوتر الأيقوني بتفاصيل دقيقة.",
     },
     features: {
-      fa: ["طراحی دقیق از فیلم", "جنس رزین باکیفیت", "بسته‌بندی کلکسیونی"],
-      en: ["Movie-accurate design", "Premium resin material", "Collector packaging"],
-      ar: ["تصميم دقيق من الفيلم", "مادة ريزين فاخرة", "تغليف جامعي"],
+      fa: ["طراحی دقیق از فیلم", "جنس باکیفیت", "بسته‌بندی کلکسیونی"],
+      en: ["Movie-accurate design", "Premium quality material", "Collector packaging"],
+      ar: ["تصميم دقيق من الفيلم", "مادة فاخرة", "تغليف جامعي"],
     },
   },
   {
@@ -783,9 +783,9 @@ const PRODUCTS = [
       ar: "تمثال رون ويزلي الأيقوني بتفاصيل دقيقة.",
     },
     features: {
-      fa: ["طراحی دقیق از فیلم", "جنس رزین باکیفیت", "بسته‌بندی کلکسیونی"],
-      en: ["Movie-accurate design", "Premium resin material", "Collector packaging"],
-      ar: ["تصميم دقيق من الفيلم", "مادة ريزين فاخرة", "تغليف جامعي"],
+      fa: ["طراحی دقیق از فیلم", "جنس باکیفیت", "بسته‌بندی کلکسیونی"],
+      en: ["Movie-accurate design", "Premium quality material", "Collector packaging"],
+      ar: ["تصميم دقيق من الفيلم", "مادة فاخرة", "تغليف جامعي"],
     },
   },
   {
@@ -810,9 +810,9 @@ const PRODUCTS = [
       ar: "غاندالف الرمادي، الساحر العظيم من سيد الخواتم مع العصا والقبعة.",
     },
     features: {
-      fa: ["طراحی دقیق از فیلم", "عصا و کلاه جادویی", "جنس رزین باکیفیت"],
-      en: ["Movie-accurate design", "Staff and pointed hat included", "Premium resin material"],
-      ar: ["تصميم دقيق من الفيلم", "عصا وقبعة سحرية مرفقة", "مادة ريزين فاخرة"],
+      fa: ["طراحی دقیق از فیلم", "عصا و کلاه جادویی", "جنس باکیفیت"],
+      en: ["Movie-accurate design", "Staff and pointed hat included", "Premium quality material"],
+      ar: ["تصميم دقيق من الفيلم", "عصا وقبعة سحرية مرفقة", "مادة فاخرة"],
     },
   },
   {
