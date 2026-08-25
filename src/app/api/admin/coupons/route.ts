@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { ok, fail, parseJson, requireAdmin } from "@/lib/api";
+import { logAudit } from "@/lib/audit";
 
 export async function GET(req: NextRequest) {
   const { error } = await requireAdmin(req);
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
   const body = parseJson<{
@@ -63,11 +64,12 @@ export async function POST(req: NextRequest) {
         : {}),
     },
   });
+  await logAudit({ user: user!, action: "create", entity: "coupon", entityId: coupon.id, details: { code, type: body.type, value: body.value } });
   return ok({ coupon }, 201);
 }
 
 export async function PATCH(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
   const body = parseJson<{
@@ -118,16 +120,18 @@ export async function PATCH(req: NextRequest) {
     }
     return tx.coupon.findUnique({ where: { id: body.id } });
   });
+  await logAudit({ user: user!, action: "update", entity: "coupon", entityId: body.id, details: { changes: Object.keys(data) } });
   return ok({ coupon });
 }
 
 export async function DELETE(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
   const id = req.nextUrl.searchParams.get("id");
   if (!id) return fail("missing_id");
 
   await prisma.coupon.delete({ where: { id } });
+  await logAudit({ user: user!, action: "delete", entity: "coupon", entityId: id });
   return ok({ deleted: true });
 }

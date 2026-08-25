@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { ok, fail, parseJson, requireAdmin } from "@/lib/api";
+import { logAudit } from "@/lib/audit";
 
 const STATUSES = [
   "PENDING",
@@ -15,7 +16,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
   const body = parseJson<{ status?: string }>(await req.text());
@@ -57,5 +58,7 @@ export async function PATCH(
 
     return updatedOrder;
   });
+
+  await logAudit({ user: user!, action: "update_status", entity: "order", entityId: params.id, details: { from: order.status, to: status } });
   return ok({ order: updated });
 }

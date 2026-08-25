@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { ok, fail, parseJson, requireAdmin } from "@/lib/api";
+import { logAudit } from "@/lib/audit";
 
 export async function GET(req: NextRequest) {
   const { error } = await requireAdmin(req);
@@ -17,7 +18,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
   const body = parseJson<{ id?: string; isRead?: boolean }>(await req.text());
@@ -32,16 +33,18 @@ export async function PATCH(req: NextRequest) {
     where: { id },
     data: { isRead },
   });
+  await logAudit({ user: user!, action: isRead ? "mark_read" : "mark_unread", entity: "contact_message", entityId: id });
   return ok({ message });
 }
 
 export async function DELETE(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
   const id = req.nextUrl.searchParams.get("id")?.trim();
   if (!id) return fail("id_required");
 
   await prisma.contactMessage.deleteMany({ where: { id } });
+  await logAudit({ user: user!, action: "delete", entity: "contact_message", entityId: id });
   return ok({ deleted: true });
 }

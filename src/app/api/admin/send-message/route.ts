@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { ok, fail, parseJson, requireAdmin } from "@/lib/api";
 import { sendEmail } from "@/lib/email";
 import prisma from "@/lib/db";
+import { logAudit } from "@/lib/audit";
 
 function escapeHtml(s: string): string {
   return s
@@ -12,7 +13,7 @@ function escapeHtml(s: string): string {
 }
 
 export async function POST(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error, user: adminUser } = await requireAdmin(req);
   if (error) return error;
 
   const body = parseJson<{
@@ -51,6 +52,7 @@ export async function POST(req: NextRequest) {
 
     try {
       await sendEmail(user.email, subject, text, html);
+      await logAudit({ user: adminUser!, action: "send_message", entity: "message", entityId: body.userId, details: { channel: "email", to: user.email, subject } });
       return ok({ sent: true, channel: "email", to: user.email });
     } catch (err) {
       const detail = err instanceof Error ? err.message : "unknown error";

@@ -3,6 +3,7 @@ import prisma from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import { ok, fail, parseJson, requireAdmin } from "@/lib/api";
 import { Locale } from "@/lib/i18n";
+import { logAudit } from "@/lib/audit";
 
 type ProductPayload = {
   slug?: string;
@@ -36,7 +37,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
   const body = parseJson<ProductPayload>(await req.text());
@@ -103,6 +104,17 @@ export async function PATCH(
     where: { id: params.id },
     include: { translations: true, category: true },
   });
+
+  const changes: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(data)) {
+    const old = (existing as Record<string, unknown>)[k];
+    if (JSON.stringify(old) !== JSON.stringify(v)) changes[k] = { from: old, to: v };
+  }
+  if (body.name) changes.name = "updated";
+  if (Object.keys(changes).length > 0) {
+    await logAudit({ user: user!, action: "update", entity: "product", entityId: params.id, details: { changes } });
+  }
+
   return ok({ product });
 }
 
@@ -110,9 +122,11 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
+  const existing = await prisma.product.findUnique({ where: { id: params.id }, select: { slug: true } });
   await prisma.product.delete({ where: { id: params.id } });
+  await logAudit({ user: user!, action: "delete", entity: "product", entityId: params.id, details: { slug: existing?.slug } });
   return ok({ deleted: true });
 }

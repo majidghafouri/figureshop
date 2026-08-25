@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { ok, fail, parseJson, requireAdmin } from "@/lib/api";
+import { logAudit } from "@/lib/audit";
 
 const MASKED = "••••••••";
 
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
   const body = parseJson<{
@@ -51,11 +52,12 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  await logAudit({ user: user!, action: "upsert", entity: "setting", entityId: key, details: { key, group: body.group } });
   return ok({ saved: true }, 201);
 }
 
 export async function PATCH(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
   const body = parseJson<{ key?: string; value?: string }>(await req.text());
@@ -68,16 +70,18 @@ export async function PATCH(req: NextRequest) {
   if (!existing) return fail("not_found", 404);
 
   await prisma.setting.update({ where: { key }, data: { value: body.value } });
+  await logAudit({ user: user!, action: "update", entity: "setting", entityId: key, details: { key } });
   return ok({ saved: true });
 }
 
 export async function DELETE(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
   const key = req.nextUrl.searchParams.get("key")?.trim();
   if (!key) return fail("key_required");
 
   await prisma.setting.deleteMany({ where: { key } });
+  await logAudit({ user: user!, action: "delete", entity: "setting", entityId: key, details: { key } });
   return ok({ deleted: true });
 }

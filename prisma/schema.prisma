@@ -450,3 +450,20 @@ model SocialAccount {
   @@unique([provider, providerId])
   @@index([userId])
 }
+
+// ---------- Audit Log ----------
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  userEmail  String
+  action     String   // e.g. "product.update", "coupon.delete", "settings.upsert"
+  entity     String   // e.g. "product", "coupon", "setting", "theme", "order"
+  entityId   String?
+  details    Json?    // { before: {...}, after: {...} } or { changes: {...} }
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity])
+  @@index([createdAt])
+}

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { ok, fail, parseJson, requireAdmin } from "@/lib/api";
 import { sanitizePalette, DEFAULT_PALETTE, PRESETS, Palette } from "@/lib/siteTheme";
+import { logAudit } from "@/lib/audit";
 
 export async function GET(req: NextRequest) {
   const { error } = await requireAdmin(req);
@@ -13,7 +14,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
   const body = parseJson<{ palette?: unknown }>(await req.text());
@@ -26,5 +27,6 @@ export async function PATCH(req: NextRequest) {
     update: { palette },
   });
 
+  await logAudit({ user: user!, action: "update", entity: "theme", details: { palette } });
   return ok({ palette });
 }

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { ok, fail, parseJson, requireAdmin } from "@/lib/api";
 import { Locale } from "@/lib/i18n";
+import { logAudit } from "@/lib/audit";
 
 type CategoryPayload = {
   slug?: string;
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
   const body = parseJson<CategoryPayload>(await req.text());
@@ -51,5 +52,6 @@ export async function POST(req: NextRequest) {
     include: { translations: true },
   });
 
+  await logAudit({ user: user!, action: "create", entity: "category", entityId: category.id, details: { slug } });
   return ok({ category }, 201);
 }

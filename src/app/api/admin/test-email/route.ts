@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { ok, fail, parseJson, requireAdmin } from "@/lib/api";
 import { sendEmail } from "@/lib/email";
 import { getSetting } from "@/lib/settings";
+import { logAudit } from "@/lib/audit";
 
 function normalizeEmail(raw: string): string | null {
   const e = (raw ?? "").trim().toLowerCase();
@@ -14,7 +15,7 @@ function escapeHtml(s: string): string {
 }
 
 export async function POST(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error, user } = await requireAdmin(req);
   if (error) return error;
 
   const body = parseJson<{ to?: string; subject?: string; body?: string }>(await req.text());
@@ -39,6 +40,7 @@ export async function POST(req: NextRequest) {
 
   try {
     await sendEmail(target, subject, text, html);
+    await logAudit({ user: user!, action: "send_test_email", entity: "email", details: { to: target, subject } });
     return ok({ sent: true, to: target });
   } catch (err) {
     const detail = err instanceof Error ? err.message : "unknown error";
