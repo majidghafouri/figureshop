@@ -329,8 +329,6 @@ export const fa = {
     orContinueWith: "یا ادامه با",
     continueWithGoogle: "ورود با گوگل",
     continueWithGitHub: "ورود با گیت‌هاب",
-    continueWithApple: "ورود با اپل",
-    continueWithTelegram: "ورود با تلگرام",
   },
   account: {
     title: "حساب کاربری",

@@ -5,7 +5,6 @@ import { getSessionUser } from "@/lib/auth";
 import { CartProvider } from "@/components/CartProvider";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ThemeProvider from "@/components/ThemeProvider";
-import TelegramCallbackHandler from "@/components/TelegramCallbackHandler";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -25,7 +24,6 @@ export default async function LocaleLayout({
     <ThemeProvider>
       <CartProvider>
         <AnalyticsProvider>
-          <TelegramCallbackHandler />
           <Header locale={locale} dict={dict} user={user} />
           <main>{children}</main>
           <Footer locale={locale} dict={dict} />

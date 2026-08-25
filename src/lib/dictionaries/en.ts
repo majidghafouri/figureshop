@@ -331,8 +331,6 @@ export const en: typeof fa = {
     orContinueWith: "or continue with",
     continueWithGoogle: "Continue with Google",
     continueWithGitHub: "Continue with GitHub",
-    continueWithApple: "Continue with Apple",
-    continueWithTelegram: "Continue with Telegram",
   },
   account: {
     title: "My Account",
