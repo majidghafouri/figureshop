@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { verifyOAuthState, exchangeGoogleCode, findOrCreateSocialUser } from "@/lib/oauth";
+import { verifyOAuthState, exchangeGoogleCode, findOrCreateSocialUser, linkSocialAccount } from "@/lib/oauth";
 
 const BASE = process.env.APP_URL || "https://figureforge.ir";
 
@@ -20,6 +20,28 @@ export async function GET(req: NextRequest) {
     const info = await exchangeGoogleCode(code);
     if (!info) {
       return Response.redirect(new URL("/fa/auth?error=oauth_failed", BASE));
+    }
+
+    if (payload.mode === "link" && payload.linkUserId) {
+      const result = await linkSocialAccount(info, "google", payload.linkUserId);
+
+      if (result.status === "linked" || result.status === "already_linked") {
+        const redirectUrl = new URL(payload.redirect || "/", BASE);
+        redirectUrl.searchParams.set("linked", result.status === "linked" ? "ok" : "already");
+        return Response.redirect(redirectUrl);
+      }
+
+      if (result.status === "conflict" && result.conflict) {
+        const redirectUrl = new URL(payload.redirect || "/", BASE);
+        redirectUrl.searchParams.set("merge", "1");
+        redirectUrl.searchParams.set("socialAccountId", result.conflict.socialAccountId);
+        redirectUrl.searchParams.set("provider", "google");
+        if (result.conflict.otherName) redirectUrl.searchParams.set("otherName", result.conflict.otherName);
+        if (result.conflict.otherEmail) redirectUrl.searchParams.set("otherEmail", result.conflict.otherEmail);
+        if (result.conflict.otherPhone) redirectUrl.searchParams.set("otherPhone", result.conflict.otherPhone);
+        if (result.conflict.otherAvatar) redirectUrl.searchParams.set("otherAvatar", result.conflict.otherAvatar);
+        return Response.redirect(redirectUrl);
+      }
     }
 
     const cartToken = req.cookies.get("cart_token")?.value ?? null;

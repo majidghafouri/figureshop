@@ -10,6 +10,8 @@ export interface OAuthState {
   provider: OAuthProvider;
   redirect?: string;
   nonce?: string;
+  mode?: "login" | "link";
+  linkUserId?: string;
 }
 
 export interface OAuthUserInfo {
@@ -23,9 +25,11 @@ export interface OAuthUserInfo {
 
 export async function createOAuthState(
   provider: OAuthProvider,
-  redirect?: string
+  redirect?: string,
+  mode?: "login" | "link",
+  linkUserId?: string
 ): Promise<string> {
-  return new SignJWT({ provider, redirect })
+  return new SignJWT({ provider, redirect, mode: mode ?? "login", linkUserId })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("10m")
@@ -170,6 +174,59 @@ export async function exchangeGitHubCode(
 import prisma from "@/lib/db";
 import { mergeGuestCart } from "@/lib/cart";
 import { createSessionCookie, setSessionCookie } from "@/lib/auth";
+
+export async function linkSocialAccount(
+  info: OAuthUserInfo,
+  provider: OAuthProvider,
+  linkUserId: string
+): Promise<{ status: "linked" | "already_linked" | "conflict"; conflict?: { socialAccountId: string; otherName: string | null; otherEmail: string | null; otherPhone: string | null; otherAvatar: string | null } }> {
+  const providerLower = provider.toLowerCase();
+
+  const existing = await prisma.socialAccount.findUnique({
+    where: { provider_providerId: { provider: providerLower, providerId: info.providerId } },
+    include: { user: true },
+  });
+
+  if (existing) {
+    if (existing.userId === linkUserId) {
+      if (info.name || info.avatar) {
+        await prisma.socialAccount.update({
+          where: { id: existing.id },
+          data: {
+            ...(info.name ? { name: info.name } : {}),
+            ...(info.avatar ? { avatar: info.avatar } : {}),
+            ...(info.email ? { email: info.email } : {}),
+          },
+        });
+      }
+      return { status: "already_linked" };
+    }
+
+    return {
+      status: "conflict",
+      conflict: {
+        socialAccountId: existing.id,
+        otherName: existing.user.name,
+        otherEmail: existing.user.email,
+        otherPhone: existing.user.phone,
+        otherAvatar: existing.avatar,
+      },
+    };
+  }
+
+  await prisma.socialAccount.create({
+    data: {
+      userId: linkUserId,
+      provider: providerLower,
+      providerId: info.providerId,
+      email: info.email,
+      name: info.name,
+      avatar: info.avatar,
+    },
+  });
+
+  return { status: "linked" };
+}
 
 export async function findOrCreateSocialUser(
   info: OAuthUserInfo,

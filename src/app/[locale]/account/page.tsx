@@ -8,6 +8,7 @@ import prisma from "@/lib/db";
 import { cancelExpiredOrders, getPaymentDeadline } from "@/lib/orders";
 import LogoutButton from "@/components/LogoutButton";
 import ProfileForm from "@/components/ProfileForm";
+import SocialAccountsManager from "@/components/SocialAccountsManager";
 import CancelOrderButton from "@/components/CancelOrderButton";
 import PayOrderButton from "@/components/PayOrderButton";
 import ReorderOrderButton from "@/components/ReorderOrderButton";
@@ -53,6 +54,14 @@ export default async function AccountPage({
 
   await cancelExpiredOrders();
 
+  const [socialAccounts] = await Promise.all([
+    prisma.socialAccount.findMany({
+      where: { userId: user.id },
+      select: { id: true, provider: true, name: true, email: true, avatar: true, createdAt: true },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
+
   const now = Date.now();
   const orders = await prisma.order.findMany({
     where: { userId: user.id },
@@ -97,6 +106,12 @@ export default async function AccountPage({
               emailVerified: user.emailVerified,
               phoneVerified: user.phoneVerified,
             }}
+          />
+
+          <SocialAccountsManager
+            dict={dict.account}
+            accounts={socialAccounts}
+            user={{ name: user.name, email: user.email, phone: user.phone }}
           />
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
