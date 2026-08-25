@@ -244,7 +244,7 @@ export async function exchangeAppleCode(
 // ---------- Telegram ----------
 
 export async function verifyTelegramAuth(data: Record<string, string>): Promise<boolean> {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  const botToken = process.env.TELEGRAM_LOGIN_BOT_TOKEN;
   if (!botToken) return false;
 
   const { hash, ...rest } = data;
