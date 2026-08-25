@@ -14,7 +14,9 @@ export default function TelegramCallbackHandler() {
 
     let decoded: Record<string, unknown>;
     try {
-      decoded = JSON.parse(atob(data));
+      const base64 = data.replace(/-/g, "+").replace(/_/g, "/");
+      const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
+      decoded = JSON.parse(atob(padded));
     } catch {
       setError("Failed to decode Telegram response");
       return;
