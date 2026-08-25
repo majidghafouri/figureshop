@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 type AuditLogDict = {
   title: string;
@@ -54,6 +54,15 @@ const ACTIONS = [
   "send_message",
 ];
 
+function DetailRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div>
+      <p className="font-[900] text-[var(--muted)] mb-0.5">{label}</p>
+      <p className={`font-[850] text-[var(--text)] ${mono ? "font-mono text-[11.5px]" : ""}`} dir={mono ? "ltr" : undefined}>{value}</p>
+    </div>
+  );
+}
+
 export default function AuditLogManager({ dict }: { dict: AuditLogDict }) {
   const d = dict;
 
@@ -62,6 +71,7 @@ export default function AuditLogManager({ dict }: { dict: AuditLogDict }) {
   const [loading, setLoading] = useState(true);
   const [filterEntity, setFilterEntity] = useState("");
   const [filterAction, setFilterAction] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const fetchLogs = async (cursor?: string, append = false) => {
     setLoading(true);
@@ -158,30 +168,57 @@ export default function AuditLogManager({ dict }: { dict: AuditLogDict }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--surface-3)]">
-                {logs.map((log) => (
-                  <tr key={log.id} className="font-[850] text-[var(--text-3)]">
-                    <td className="px-4 py-3" dir="ltr">{log.userEmail}</td>
-                    <td className="px-4 py-3">
-                      <span className="bg-[var(--soft)] text-[var(--primary)] rounded-full px-2.5 py-1 text-[11px] font-[950]">
-                        {d.actions[log.action] ?? log.action}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="bg-[var(--soft)] text-[var(--primary)] rounded-full px-2.5 py-1 text-[11px] font-[950]">
-                        {d.entities[log.entity] ?? log.entity}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-[var(--muted)]" dir="ltr">
-                      {log.entityId ? log.entityId.slice(0, 8) + "…" : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-[var(--muted)] max-w-[260px] truncate" title={fmtDetails(log.details)}>
-                      {fmtDetails(log.details)}
-                    </td>
-                    <td className="px-4 py-3 text-[var(--muted)] whitespace-nowrap">
-                      {fmtDate(log.createdAt)}
-                    </td>
-                  </tr>
-                ))}
+                {logs.map((log) => {
+                  const isOpen = expandedId === log.id;
+                  return (
+                    <Fragment key={log.id}>
+                      <tr
+                        className="font-[850] text-[var(--text-3)] cursor-pointer hover:bg-[var(--soft)] transition-colors"
+                        onClick={() => setExpandedId(isOpen ? null : log.id)}
+                      >
+                        <td className="px-4 py-3" dir="ltr">{log.userEmail}</td>
+                        <td className="px-4 py-3">
+                          <span className="bg-[var(--soft)] text-[var(--primary)] rounded-full px-2.5 py-1 text-[11px] font-[950]">
+                            {d.actions[log.action] ?? log.action}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="bg-[var(--soft)] text-[var(--primary)] rounded-full px-2.5 py-1 text-[11px] font-[950]">
+                            {d.entities[log.entity] ?? log.entity}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-[var(--muted)]" dir="ltr">
+                          {log.entityId ? log.entityId.slice(0, 8) + "…" : "—"}
+                        </td>
+                        <td className="px-4 py-3 text-[var(--muted)] max-w-[260px] truncate" title={fmtDetails(log.details)}>
+                          {fmtDetails(log.details)}
+                        </td>
+                        <td className="px-4 py-3 text-[var(--muted)] whitespace-nowrap">
+                          {fmtDate(log.createdAt)}
+                        </td>
+                      </tr>
+                      {isOpen && (
+                        <tr>
+                          <td colSpan={6} className="bg-[var(--bg)] px-6 py-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[12.5px]">
+                              <DetailRow label={d.admin} value={log.userEmail} />
+                              <DetailRow label={d.action} value={d.actions[log.action] ?? log.action} />
+                              <DetailRow label={d.entity} value={d.entities[log.entity] ?? log.entity} />
+                              <DetailRow label={d.entityId} value={log.entityId ?? "—"} mono />
+                              <DetailRow label={d.time} value={fmtDate(log.createdAt)} />
+                              <div className="sm:col-span-2">
+                                <p className="font-[900] text-[var(--muted)] mb-1">{d.details}</p>
+                                <pre className="bg-[var(--surface)] border border-[var(--line)] rounded-[12px] p-3 text-[11.5px] font-[850] text-[var(--text-3)] whitespace-pre-wrap break-all leading-relaxed">
+                                  {log.details ? JSON.stringify(log.details, null, 2) : "—"}
+                                </pre>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
