@@ -23,7 +23,10 @@ export async function POST(req: NextRequest) {
 
   // Verify hash
   const valid = await verifyTelegramAuth(body as unknown as Record<string, string>);
-  if (!valid) return fail("invalid_hash");
+  if (!valid) {
+    const tokenPrefix = (process.env.TELEGRAM_LOGIN_BOT_TOKEN ?? "").split(":")[0];
+    return fail(`invalid_hash (token_bot_id=${tokenPrefix}, auth_bot_id=${body.id})`);
+  }
 
   const info: OAuthUserInfo = {
     providerId: String(body.id),
