@@ -77,33 +77,6 @@ export default function AuthForm({ dict, prefix }: { dict: Dictionary; prefix: s
   }, []);
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (!hash.startsWith("#tgAuthResult=")) return;
-    const data = hash.slice("#tgAuthResult=".length);
-    try {
-      const decoded = JSON.parse(atob(data));
-      fetch("/api/auth/telegram", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(decoded),
-      }).then(async (res) => {
-        const json = await res.json();
-        if (json.ok) {
-          const next = searchParams.get("next");
-          router.push(next ?? "/");
-          router.refresh();
-        } else {
-          setError(dict.auth.errorInvalidCode);
-        }
-      });
-    } catch {
-      setError(dict.auth.errorInvalidCode);
-    }
-    window.location.hash = "";
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     try {
       sessionStorage.setItem(
         AUTH_STORAGE_KEY,
