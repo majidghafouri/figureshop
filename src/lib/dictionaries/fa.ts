@@ -326,6 +326,11 @@ export const fa = {
     termsLink: "قوانین و مقررات",
     agreeSuffix: " فیگرفورج موافقم",
     acceptTermsError: "برای ثبت‌نام، ابتدا قوانین و مقررات را بپذیرید.",
+    orContinueWith: "یا ادامه با",
+    continueWithGoogle: "ورود با گوگل",
+    continueWithGitHub: "ورود با گیت‌هاب",
+    continueWithApple: "ورود با اپل",
+    continueWithTelegram: "ورود با تلگرام",
   },
   account: {
     title: "حساب کاربری",

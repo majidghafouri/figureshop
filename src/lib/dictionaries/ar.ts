@@ -328,6 +328,11 @@ export const ar: typeof fa = {
     termsLink: "الشروط والأحكام",
     agreeSuffix: "",
     acceptTermsError: "يرجى الموافقة على الشروط والأحكام للتسجيل.",
+    orContinueWith: "أو تابع بـ",
+    continueWithGoogle: "المتابعة مع جوجل",
+    continueWithGitHub: "المتابعة مع GitHub",
+    continueWithApple: "المتابعة مع آبل",
+    continueWithTelegram: "المتابعة مع تيليجرام",
   },
   account: {
     title: "حسابي",

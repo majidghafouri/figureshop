@@ -37,6 +37,7 @@ model User {
   newsletterSubscriptions NewsletterSubscriber[]
   visitors                Visitor[]
   favorites               Favorite[]
+  socialAccounts          SocialAccount[]
   createdAt               DateTime               @default(now())
   updatedAt               DateTime               @updatedAt
 
@@ -430,4 +431,22 @@ model Favorite {
 
   @@unique([userId, productId])
   @@index([productId])
+}
+
+// ---------- Social Login ----------
+
+model SocialAccount {
+  id         String   @id @default(cuid())
+  userId     String
+  provider   String   // google, github, apple, telegram
+  providerId String
+  email      String?
+  name       String?
+  avatar     String?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([provider, providerId])
+  @@index([userId])
 }
