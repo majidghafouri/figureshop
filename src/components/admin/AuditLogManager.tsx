@@ -65,16 +65,21 @@ export default function AuditLogManager({ dict }: { dict: AuditLogDict }) {
 
   const fetchLogs = async (cursor?: string, append = false) => {
     setLoading(true);
-    const params = new URLSearchParams({ take: "50" });
-    if (filterEntity) params.set("entity", filterEntity);
-    if (filterAction) params.set("action", filterAction);
-    if (cursor) params.set("cursor", cursor);
+    try {
+      const params = new URLSearchParams({ take: "50" });
+      if (filterEntity) params.set("entity", filterEntity);
+      if (filterAction) params.set("action", filterAction);
+      if (cursor) params.set("cursor", cursor);
 
-    const res = await fetch(`/api/admin/audit?${params}`);
-    if (res.ok) {
-      const data = await res.json();
-      setLogs((prev) => (append ? [...prev, ...data.logs] : data.logs));
-      setHasMore(data.hasMore);
+      const res = await fetch(`/api/admin/audit?${params}`);
+      if (res.ok) {
+        const json = await res.json();
+        const payload = json.data ?? json;
+        setLogs((prev) => (append ? [...prev, ...payload.logs] : payload.logs));
+        setHasMore(payload.hasMore);
+      }
+    } catch {
+      // ignore
     }
     setLoading(false);
   };
