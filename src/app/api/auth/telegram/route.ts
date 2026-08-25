@@ -24,9 +24,7 @@ export async function POST(req: NextRequest) {
   // Verify hash
   const valid = await verifyTelegramAuth(body as unknown as Record<string, string>);
   if (!valid) {
-    const { hash: _h, ...rest } = body as Record<string, string>;
-    const keys = Object.keys(rest).sort();
-    const checkString = keys.map((k) => `${k}=${rest[k]}`).join("\n");
+    const keys = Object.keys(body as Record<string, unknown>).filter((k) => k !== "hash").sort();
     return fail("invalid_hash", 400, {
       keys,
       auth_date_age: Math.floor(Date.now() / 1000) - Number(body.auth_date),
