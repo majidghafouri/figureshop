@@ -256,15 +256,25 @@ export async function verifyTelegramAuth(data: Record<string, string>): Promise<
     .join("\n");
 
   const encoder = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode("WebAppData"),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const secretKey = await crypto.subtle.sign("HMAC", keyMaterial, encoder.encode(botToken));
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    secretKey,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
   return crypto.subtle
-    .digest("SHA-256", encoder.encode(`WebAppData${botToken}`))
-    .then((keyBytes) => {
-      const key = crypto.subtle.importKey("raw", keyBytes, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-      return key;
-    })
-    .then((key) =>
-      crypto.subtle.sign("HMAC", key, encoder.encode(checkString))
-    )
+    .sign("HMAC", key, encoder.encode(checkString))
     .then((sig) => {
       const hex = Array.from(new Uint8Array(sig))
         .map((b) => b.toString(16).padStart(2, "0"))

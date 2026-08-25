@@ -1,17 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 export default function TelegramCallbackHandler() {
-  const router = useRouter();
-
   useEffect(() => {
     const hash = window.location.hash;
     if (!hash.startsWith("#tgAuthResult=")) return;
 
     const data = hash.slice("#tgAuthResult=".length);
-    window.location.hash = "";
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
 
     try {
       const decoded = JSON.parse(atob(data));
@@ -22,14 +19,13 @@ export default function TelegramCallbackHandler() {
       }).then(async (res) => {
         const json = await res.json();
         if (json.ok) {
-          router.push("/");
-          router.refresh();
+          window.location.href = "/";
         }
       });
     } catch {
       // invalid data, ignore
     }
-  }, [router]);
+  }, []);
 
   return null;
 }
