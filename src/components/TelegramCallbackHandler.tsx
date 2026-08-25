@@ -39,6 +39,7 @@ export default function TelegramCallbackHandler() {
         if (json.tokenLen) parts.push("TokenLen: " + json.tokenLen);
         if (json.tokenStart) parts.push("TokenStart: " + json.tokenStart);
         if (json.authDateAge !== undefined) parts.push("AuthAge: " + json.authDateAge + "s");
+        if (json.tokenSha256) parts.push("TokenSHA: " + json.tokenSha256);
         setError(parts.join("\n"));
       }
     }).catch(() => {

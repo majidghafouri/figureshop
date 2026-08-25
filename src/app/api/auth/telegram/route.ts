@@ -25,8 +25,16 @@ export async function POST(req: NextRequest) {
   const result = await verifyTelegramAuth(body as unknown as Record<string, string>);
   const valid = typeof result === "boolean" ? result : result.ok;
   if (!valid) {
-    const debug = typeof result === "object" ? (result as unknown as Record<string, unknown>) : undefined;
-    return fail("invalid_hash", 400, debug);
+    const debugObj = typeof result === "object" ? result : undefined;
+    const tokenSha = debugObj
+      ? await crypto.subtle.digest("SHA-256", new TextEncoder().encode(process.env.TELEGRAM_LOGIN_BOT_TOKEN || "")).then(
+          (b) => Array.from(new Uint8Array(b)).map((x) => x.toString(16).padStart(2, "0")).join("")
+        )
+      : "no_token";
+    return fail("invalid_hash", 400, {
+      ...(debugObj as unknown as Record<string, unknown>),
+      tokenSha256: await tokenSha,
+    });
   }
 
   const info: OAuthUserInfo = {
