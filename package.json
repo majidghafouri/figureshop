@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma db push && node scripts/backfill-email-verified.cjs && next build",
+    "build": "prisma generate && prisma db push && node prisma/seed.js && node scripts/backfill-email-verified.cjs && next build",
     "postbuild": "next-sitemap",
     "start": "next start",
     "lint": "next lint",
