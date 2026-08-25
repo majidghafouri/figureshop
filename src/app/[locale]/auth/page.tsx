@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import Script from "next/script";
 import { notFound, redirect } from "next/navigation";
 import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
@@ -46,7 +45,6 @@ export default async function AuthPage({
 
   return (
     <>
-      <Script src="https://telegram.org/js/telegram-widget.js?22" strategy="lazyOnload" />
       <div className="relative overflow-hidden py-[56px] max-sm:py-[40px]"
         style={{
           background:
