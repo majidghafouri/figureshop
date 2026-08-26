@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { ok, fail, requireAdmin } from "@/lib/api";
+import { ok, requireAdmin } from "@/lib/api";
 import prisma from "@/lib/db";
 import { writeFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
@@ -67,7 +67,7 @@ function guessSearchQuery(slug: string, titleEn: string): string {
   return clean + " collectible figure";
 }
 
-async function downloadImage(query: string, fallbackSeed: string): Promise<Buffer | null> {
+async function downloadImage(query: string): Promise<Buffer | null> {
   const tags = query.replace(/\s+/g, ",").slice(0, 80);
   try {
     const url = `https://loremflickr.com/1200/630/${tags}`;
@@ -90,7 +90,7 @@ async function downloadImage(query: string, fallbackSeed: string): Promise<Buffe
 }
 
 export async function POST(req: NextRequest) {
-  const { error } = await requireAdmin();
+  const { error } = await requireAdmin(req);
   if (error) return error;
 
   if (!existsSync(COVER_DIR)) {
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
     const filename = `${post.slug}.jpg`;
     const filepath = path.join(COVER_DIR, filename);
 
-    const buf = await downloadImage(query, post.slug);
+    const buf = await downloadImage(query);
     if (!buf) {
       results.push({ slug: post.slug, status: "failed" });
       continue;
