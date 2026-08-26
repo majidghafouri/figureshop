@@ -748,6 +748,7 @@ export const fa = {
       none: "بدون دسته",
       create: "ایجاد مقاله",
       saveChanges: "ذخیره تغییرات",
+      saveAsDraft: "ذخیره به عنوان پیش‌نویس",
       saving: "در حال ذخیره...",
       back: "بازگشت به مقالات",
       delete: "حذف",

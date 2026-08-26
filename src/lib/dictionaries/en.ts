@@ -750,6 +750,7 @@ export const en: typeof fa = {
       none: "No category",
       create: "Create article",
       saveChanges: "Save changes",
+      saveAsDraft: "Save as draft",
       saving: "Saving...",
       back: "Back to articles",
       delete: "Delete",

@@ -750,6 +750,7 @@ export const ar: typeof fa = {
       none: "بدون فئة",
       create: "إنشاء مقال",
       saveChanges: "حفظ التغييرات",
+      saveAsDraft: "حفظ كمسودة",
       saving: "جاري الحفظ...",
       back: "العودة إلى المقالات",
       delete: "حذف",

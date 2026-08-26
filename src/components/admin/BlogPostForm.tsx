@@ -352,7 +352,7 @@ export default function BlogPostForm({ isEdit, dict, prefix, postId, initial }: 
           disabled={saving}
           className="px-6 py-3 rounded-[14px] text-[var(--text)] text-[13.5px] font-[950] border border-[var(--line)] bg-[var(--surface)] hover:bg-[var(--soft)] transition-all disabled:opacity-50"
         >
-          {dict.saveChanges}
+          {dict.saveAsDraft}
         </button>
         <button
           onClick={() => router.push(`${prefix}/admin/blog`)}
