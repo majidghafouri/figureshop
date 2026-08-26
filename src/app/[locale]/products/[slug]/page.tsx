@@ -13,6 +13,7 @@ import Reveal from "@/components/Reveal";
 import ProductMusicPlayer from "@/components/ProductMusicPlayer";
 import Reactions from "@/components/Reactions";
 import FavoriteButton from "@/components/FavoriteButton";
+import Comments from "@/components/Comments";
 import { getSessionUser } from "@/lib/auth";
 import JsonLd from "@/components/JsonLd";
 import { trackEvent } from "@/lib/analytics";
@@ -294,6 +295,14 @@ export default async function ProductDetailPage({
             <div className="mt-7">
               <Reactions targetType="PRODUCT" targetId={p.id} dict={dict.reactions} />
             </div>
+
+            <Comments
+              targetType="PRODUCT"
+              targetId={p.id}
+              isLoggedIn={!!sessionUser}
+              userId={sessionUser?.id}
+              dict={dict.products.detail.comments}
+            />
           </div>
         </div>
 

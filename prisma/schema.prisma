@@ -38,6 +38,7 @@ model User {
   visitors                Visitor[]
   favorites               Favorite[]
   socialAccounts          SocialAccount[]
+  comments                Comment[]
   createdAt               DateTime               @default(now())
   updatedAt               DateTime               @updatedAt
 
@@ -449,6 +450,26 @@ model SocialAccount {
 
   @@unique([provider, providerId])
   @@index([userId])
+}
+
+// ---------- Comments ----------
+
+model Comment {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  targetType String    // "PRODUCT" | "ARTICLE"
+  targetId   String
+  parentId   String?
+  parent     Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies    Comment[] @relation("CommentReplies")
+  body       String    @db.Text
+  isApproved Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([targetType, targetId, isApproved])
+  @@index([userId, createdAt])
 }
 
 // ---------- Audit Log ----------

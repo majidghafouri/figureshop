@@ -7,8 +7,10 @@ import { buildMetadata, buildArticleJsonLd, buildBreadcrumbJsonLd } from "@/lib/
 import { getPostBySlug, getRelatedPosts } from "@/lib/blog";
 import BlogBody from "@/components/BlogBody";
 import Reactions from "@/components/Reactions";
+import Comments from "@/components/Comments";
 import Reveal from "@/components/Reveal";
 import JsonLd from "@/components/JsonLd";
+import { getSessionUser } from "@/lib/auth";
 
 export async function generateMetadata({ params }: { params: { locale: string; slug: string } }): Promise<Metadata> {
   const locale = isLocale(params.locale) ? (params.locale as Locale) : "fa";
@@ -40,6 +42,7 @@ export default async function BlogPostPage({
   if (!post) notFound();
 
   const related = await getRelatedPosts(locale, post.slug, 3);
+  const sessionUser = await getSessionUser();
 
   return (
     <div className="relative overflow-hidden py-[40px] max-sm:py-[28px]"
@@ -167,6 +170,14 @@ export default async function BlogPostPage({
             <div className="mt-9">
               <Reactions targetType="ARTICLE" targetId={post.id} dict={dict.reactions} />
             </div>
+
+            <Comments
+              targetType="ARTICLE"
+              targetId={post.id}
+              isLoggedIn={!!sessionUser}
+              userId={sessionUser?.id}
+              dict={dict.products.detail.comments}
+            />
 
             <Link
               href={`${prefix}/blog`}

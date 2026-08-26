@@ -35,6 +35,7 @@ export default async function AdminLayout({
     { href: "/users", label: dict.admin.nav.users, icon: "👥" },
     { href: "/newsletter", label: dict.admin.nav.newsletter, icon: "📬" },
     { href: "/reactions", label: dict.admin.nav.reactions, icon: "🧡" },
+    { href: "/comments", label: dict.admin.nav.comments, icon: "💬" },
     { href: "/appearance", label: dict.admin.nav.appearance, icon: "🎨" },
     { href: "/email", label: dict.admin.nav.email, icon: "✉️" },
     { href: "/settings", label: dict.admin.nav.settings, icon: "🔑" },
