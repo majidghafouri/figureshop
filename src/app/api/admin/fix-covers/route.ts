@@ -82,8 +82,14 @@ async function resolveImageUrl(query: string): Promise<string | null> {
 }
 
 export async function POST(req: NextRequest) {
-  const { error } = await requireAdmin(req);
-  if (error) return error;
+  const secret = process.env.CRON_SECRET;
+  const auth = req.headers.get("authorization");
+  const isCronAuth = secret && auth === `Bearer ${secret}`;
+
+  if (!isCronAuth) {
+    const { error } = await requireAdmin(req);
+    if (error) return error;
+  }
 
   const posts = await prisma.blogPost.findMany({
     where: {
