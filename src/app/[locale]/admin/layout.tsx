@@ -39,6 +39,7 @@ export default async function AdminLayout({
     { href: "/email", label: dict.admin.nav.email, icon: "✉️" },
     { href: "/settings", label: dict.admin.nav.settings, icon: "🔑" },
     { href: "/audit-log", label: dict.admin.nav.auditLog, icon: "📋" },
+    { href: "/blog", label: dict.admin.nav.blog, icon: "📝" },
   ];
 
   return (
