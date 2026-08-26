@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import { ok, requireAdmin } from "@/lib/api";
 import prisma from "@/lib/db";
+import { put } from "@vercel/blob";
+import crypto from "crypto";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -61,7 +63,7 @@ function guessSearchQuery(slug: string, titleEn: string): string {
   return clean + " collectible figure";
 }
 
-async function resolveImageUrl(query: string): Promise<string | null> {
+async function fetchImageBuffer(query: string): Promise<Buffer | null> {
   const tags = query.replace(/\s+/g, ",").slice(0, 80);
   const urls = [
     `https://loremflickr.com/1200/630/${tags}`,
@@ -74,11 +76,20 @@ async function resolveImageUrl(query: string): Promise<string | null> {
         signal: AbortSignal.timeout(15000),
       });
       if (res.ok && res.headers.get("content-type")?.startsWith("image/")) {
-        return res.url;
+        return Buffer.from(await res.arrayBuffer());
       }
     } catch {}
   }
   return null;
+}
+
+async function uploadToBlob(buffer: Buffer, slug: string): Promise<string> {
+  const name = `blog-covers/${slug}-${crypto.randomBytes(4).toString("hex")}.jpg`;
+  const blob = await put(name, buffer, {
+    access: "public",
+    addRandomSuffix: false,
+  });
+  return blob.url;
 }
 
 export async function POST(req: NextRequest) {
@@ -111,14 +122,16 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  if (posts.length === 0) return ok({ total: 0, results: [] });
+
   const results: { slug: string; status: string; url?: string }[] = [];
 
   for (const post of posts) {
     const titleEn = post.translations[0]?.title ?? "";
     const query = guessSearchQuery(post.slug, titleEn);
 
-    const imageUrl = await resolveImageUrl(query);
-    if (!imageUrl) {
+    const buf = await fetchImageBuffer(query);
+    if (!buf) {
       await prisma.blogPost.update({
         where: { id: post.id },
         data: { coverImage: null, coverSvg: null },
@@ -127,11 +140,12 @@ export async function POST(req: NextRequest) {
       continue;
     }
 
+    const blobUrl = await uploadToBlob(buf, post.slug);
     await prisma.blogPost.update({
       where: { id: post.id },
-      data: { coverImage: imageUrl, coverSvg: null },
+      data: { coverImage: blobUrl, coverSvg: null },
     });
-    results.push({ slug: post.slug, status: "updated", url: imageUrl });
+    results.push({ slug: post.slug, status: "updated", url: blobUrl });
   }
 
   return ok({ total: posts.length, results });
