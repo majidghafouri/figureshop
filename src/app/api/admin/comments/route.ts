@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
-import { ok, fail, requireAdmin } from "@/lib/api";
+import { ok, requireAdmin } from "@/lib/api";
 import prisma from "@/lib/db";
-import { logAudit } from "@/lib/audit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
