@@ -1,6 +1,4 @@
 const { PrismaClient } = require("@prisma/client");
-const { BLOG_POSTS } = require("./blog-data");
-
 const prisma = new PrismaClient();
 
 const CATEGORIES = [
@@ -940,49 +938,8 @@ async function main() {
     create: { email: adminEmail, role: "ADMIN", name: "مدیر" },
   });
 
-  let publishedCount = 0;
-  let bankCount = 0;
-  for (const b of BLOG_POSTS) {
-    const publishedAt = b.published
-      ? new Date(Date.now() - b.daysAgo * 86400000)
-      : null;
-    const existingPost = await prisma.blogPost.findUnique({ where: { slug: b.slug } });
-    if (existingPost) {
-      if (b.published) publishedCount++;
-      else bankCount++;
-      continue;
-    }
-
-    const createdAt = new Date(Date.now() - b.createdDaysAgo * 86400000);
-    const post = await prisma.blogPost.create({
-      data: {
-        slug: b.slug,
-        coverImage: `/blog/${b.slug}.svg`,
-        category: b.category,
-        readingTime: b.readingTime,
-        isPublished: b.published,
-        publishedAt,
-        createdAt,
-      },
-    });
-    for (const loc of ["fa", "en", "ar"]) {
-      await prisma.blogPostTranslation.create({
-        data: {
-          postId: post.id,
-          locale: loc,
-          tag: b.tag[loc],
-          title: b.title[loc],
-          excerpt: b.excerpt[loc],
-          body: b.body[loc],
-        },
-      });
-    }
-    if (b.published) publishedCount++;
-    else bankCount++;
-  }
-
   console.log(
-    `Seeded ${CATEGORIES.length} categories, ${PRODUCTS.length} products, admin user (${adminEmail}), ${publishedCount} published + ${bankCount} bank blog posts.`,
+    `Seeded ${CATEGORIES.length} categories, ${PRODUCTS.length} products, admin user (${adminEmail}).`,
   );
 }
 
