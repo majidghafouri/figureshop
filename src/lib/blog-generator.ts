@@ -668,101 +668,6 @@ function readingMinutes(topic: Topic, locale: Locale): number {
   return Math.max(2, Math.round(words / 200));
 }
 
-function escapeXml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function splitTitle(title: string): string[] {
-  const words = title.split(/\s+/);
-  if (words.length <= 2) return [title];
-  const half = Math.ceil(words.length / 2);
-  const a = words.slice(0, half).join(" ");
-  const b = words.slice(half).join(" ");
-  if (a.length > 40) return [a, b];
-  const mid = Math.floor(title.length / 2);
-  const spaces: number[] = [];
-  let idx = title.indexOf(" ");
-  while (idx !== -1) {
-    spaces.push(idx);
-    idx = title.indexOf(" ", idx + 1);
-  }
-  let splitAt = mid;
-  let best = Infinity;
-  for (const s of spaces) {
-    if (Math.abs(s - mid) < best) {
-      best = Math.abs(s - mid);
-      splitAt = s;
-    }
-  }
-  return [title.slice(0, splitAt), title.slice(splitAt + 1)];
-}
-
-const RTL = new Set(["fa", "ar"]);
-
-function buildSvg(topic: Topic, date: Date, locale: Locale): string {
-  const n = dayNumber(date);
-  const accent =
-    n % 3 === 0 ? "#15c8b8" : n % 3 === 1 ? "#169ed9" : "#6b84f2";
-  const title = topic.title[locale];
-  const lines = splitTitle(title);
-  const dir = RTL.has(locale) ? ` style="direction:rtl"` : "";
-  const brandLabel =
-    locale === "fa"
-      ? "مجله فیگرفورج"
-      : locale === "ar"
-        ? "مدونة فيجرفورج"
-        : "FIGURFORGE BLOG";
-  const footer =
-    locale === "fa"
-      ? "فیگرفورج؛ دنیای فیگورها"
-      : locale === "ar"
-        ? "فيجرفورج؛ عالم التماثيل"
-        : "FIGUREFORGE — THE FIGURE WORLD";
-
-  const circles = [
-    `<circle cx="${1030 + (n % 3) * 40}" cy="${110 + (n % 5) * 30}" r="${260 + (n % 4) * 40}" fill="url(#glow)"/>`,
-    `<circle cx="${120 + (n % 4) * 30}" cy="${560 - (n % 6) * 20}" r="250" fill="url(#glow)"/>`,
-    `<circle cx="${1080}" cy="${520 + (n % 3) * 20}" r="${70 + (n % 5) * 12}" fill="none" stroke="#ffffff" stroke-opacity="0.16" stroke-width="3"/>`,
-    `<circle cx="${80 + (n % 7) * 25}" cy="${130 + (n % 4) * 40}" r="${34 + (n % 4) * 10}" fill="none" stroke="#ffffff" stroke-opacity="0.16" stroke-width="3"/>`,
-  ];
-  for (let i = 0; i < 6; i++) {
-    const cx = 200 + ((n * 137 + i * 211) % 800);
-    const cy = 60 + ((n * 89 + i * 173) % 90);
-    const r = 3 + (i % 3);
-    const o = 0.2 + (i % 4) * 0.06;
-    circles.push(
-      `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#ffffff" fill-opacity="${o.toFixed(2)}"/>`,
-    );
-  }
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#3454d1"/>
-      <stop offset="1" stop-color="${accent}"/>
-    </linearGradient>
-    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.20"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <rect width="1200" height="630" fill="url(#bg)"/>
-  ${circles.join("\n  ")}
-  <g transform="translate(600,140)">
-    <rect x="-120" y="-34" width="240" height="60" rx="30" fill="#ffffff" fill-opacity="0.14"/>
-    <text x="0" y="12" text-anchor="middle" font-size="30" font-weight="800" fill="#ffffff" font-family="Tahoma, 'Segoe UI', sans-serif"${dir}>${escapeXml(topic.icon)} ${escapeXml(topic.tag[locale])}</text>
-  </g>
-  <text x="600" y="104" text-anchor="middle" font-size="20" font-weight="700" letter-spacing="4" fill="#ffffff" fill-opacity="0.85" font-family="Tahoma, 'Segoe UI', sans-serif">${escapeXml(brandLabel)}</text>
-  <text x="600" y="${lines.length > 1 ? 330 : 360}" text-anchor="middle" font-size="${lines.length > 1 ? 46 : 54}" font-weight="900" fill="#ffffff" font-family="Tahoma, 'Segoe UI', sans-serif"${dir}>${escapeXml(lines[0])}</text>
-  ${lines.length > 1 ? `<text x="600" y="404" text-anchor="middle" font-size="46" font-weight="900" fill="#ffffff" font-family="Tahoma, 'Segoe UI', sans-serif"${dir}>${escapeXml(lines[1])}</text>` : ""}
-  <text x="600" y="560" text-anchor="middle" font-size="17" font-weight="700" fill="#ffffff" fill-opacity="0.75" font-family="Tahoma, 'Segoe UI', sans-serif"${dir}>${escapeXml(footer)}</text>
-</svg>`;
-}
-
 export function dateSlug(topicId: string, date: Date): string {
   const y = date.getUTCFullYear();
   const m = String(date.getUTCMonth() + 1).padStart(2, "0");
@@ -779,13 +684,12 @@ export async function generateDailyPost(
   if (existing && existing.isPublished) return null;
 
   const title = topic.title.fa;
-  const svg = buildSvg(topic, date, "fa");
 
   const post = await prisma.blogPost.upsert({
     where: { slug },
     update: {
-      coverImage: `/api/blog/cover/${slug}`,
-      coverSvg: svg,
+      coverImage: null,
+      coverSvg: null,
       category: topic.category,
       readingTime: readingMinutes(topic, "fa"),
       isPublished: true,
@@ -794,8 +698,8 @@ export async function generateDailyPost(
     },
     create: {
       slug,
-      coverImage: `/api/blog/cover/${slug}`,
-      coverSvg: svg,
+      coverImage: null,
+      coverSvg: null,
       category: topic.category,
       readingTime: readingMinutes(topic, "fa"),
       isPublished: true,

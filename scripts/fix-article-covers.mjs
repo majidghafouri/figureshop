@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Fix blog articles that have SVG/vector cover images.
+ * Fix ALL blog articles that have SVG/vector cover images.
  * Replaces them with relevant photos downloaded from Unsplash.
  *
  * Usage: node scripts/fix-article-covers.mjs
@@ -14,34 +14,79 @@ const prisma = new PrismaClient();
 
 const COVER_DIR = path.resolve("public/uploads/blog-covers");
 
-const SLUG_TO_SEARCH = {
-  "buying-guide-anime-figures": "anime figure collectible toy",
-  "top-10-marvel-figures-collectors": "marvel superhero action figure",
-  "receive-figures-safely": "package delivery unboxing parcel",
-  "movie-figures-that-make-a-collection": "movie character figurine collection",
-  "trusted-figure-brands": "anime figurine brand display",
-  "shelving-and-display-ideas": "display shelf collectibles cabinet",
-  "top-10-figures-2026": "anime figure collection 2024",
-  "new-anime-figures-preorder": "anime figure preorder new",
-  "original-vs-knockoff": "fake vs real product comparison",
-  "figure-care-guide": "cleaning dusting delicate items",
-  "theme-collections-ideas": "themed collection display shelf",
+const KEYWORD_MAP = {
+  "anime": "anime figure collectible",
+  "figure": "anime figure toy",
+  "care": "cleaning dusting delicate items",
+  "collect": "collection display shelf",
+  "brand": "product quality brand",
+  "shelf": "display shelf cabinet",
+  "knockoff": "fake vs real comparison",
+  "preorder": "new product launch",
+  "marvel": "marvel superhero action figure",
+  "dc": "dc comics superhero figure",
+  "gundam": "gundam robot model kit",
+  "dragon ball": "dragon ball z figure",
+  "one piece": "one piece anime figure",
+  "naruto": "naruto anime figure",
+  "demon slayer": "demon slayer anime figure",
+  "attack on titan": "attack on titan figure",
+  "display": "collectible display shelf",
+  "store": "toy store shop",
+  "review": "product review unboxing",
+  "shipping": "package delivery box",
+  "unboxing": "unboxing package delivery",
+  "authentic": "authentic genuine product",
+  "fake": "fake counterfeit comparison",
+  "care guide": "cleaning delicate items",
+  "maintenance": "cleaning maintaining items",
+  "theme": "themed collection display",
+  "collection": "figure collection display",
+  "buying guide": "shopping store guide",
+  "beginner": "starter beginner guide",
+  "top 10": "best collection display",
+  "best": "best rated product",
+  "new": "new product launch",
+  "trending": "popular trending items",
+  "safety": "safe packaging delivery",
+  "package": "package delivery parcel",
+  "delivery": "delivery shipping box",
+  "shelf idea": "creative shelf display",
+  "display idea": "creative display arrangement",
 };
 
-async function downloadFromUnsplash(query) {
-  const url = `https://source.unsplash.com/1200x630/?${encodeURIComponent(query)}`;
-  const res = await fetch(url, { redirect: "follow" });
-  if (!res.ok) return null;
-  const buf = Buffer.from(await res.arrayBuffer());
-  return buf;
+function guessSearchQuery(slug, titleEn) {
+  if (titleEn) {
+    const words = titleEn.toLowerCase().split(/\s+/).slice(0, 6);
+    return words.join(" ");
+  }
+  const clean = slug.replace(/\d{4}-\d{2}-\d{2}$/, "").replace(/-/g, " ");
+  for (const [keyword, query] of Object.entries(KEYWORD_MAP)) {
+    if (clean.includes(keyword)) return query;
+  }
+  return clean + " collectible figure";
 }
 
-async function downloadFromPicsum(seed) {
-  const url = `https://picsum.photos/seed/${encodeURIComponent(seed)}/1200/630`;
-  const res = await fetch(url, { redirect: "follow" });
-  if (!res.ok) return null;
-  const buf = Buffer.from(await res.arrayBuffer());
-  return buf;
+async function downloadImage(query, fallbackSeed) {
+  const tags = query.replace(/\s+/g, ",").slice(0, 80);
+  try {
+    const url = `https://loremflickr.com/1200/630/${tags}`;
+    const res = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(15000) });
+    if (res.ok) {
+      const buf = Buffer.from(await res.arrayBuffer());
+      if (buf.length > 2000) return buf;
+    }
+  } catch {}
+  try {
+    const fallbackTags = "figure,collectible,anime";
+    const url = `https://loremflickr.com/1200/630/${fallbackTags}`;
+    const res = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(15000) });
+    if (res.ok) {
+      const buf = Buffer.from(await res.arrayBuffer());
+      if (buf.length > 2000) return buf;
+    }
+  } catch {}
+  return null;
 }
 
 async function main() {
@@ -53,31 +98,35 @@ async function main() {
     where: {
       OR: [
         { coverImage: { endsWith: ".svg" } },
-        { coverImage: { contains: "/blog/" } },
+        { coverImage: { contains: "/api/blog/cover/" } },
         { coverSvg: { not: null } },
       ],
     },
-    select: { id: true, slug: true, coverImage: true },
+    select: {
+      id: true,
+      slug: true,
+      coverImage: true,
+      translations: { select: { locale: true, title: true }, where: { locale: "en" }, take: 1 },
+    },
   });
 
-  console.log(`Found ${posts.length} articles with SVG/vector covers.`);
+  console.log(`Found ${posts.length} articles with SVG/vector covers.\n`);
 
   let updated = 0;
+  let failed = 0;
+
   for (const post of posts) {
-    const query = SLUG_TO_SEARCH[post.slug] || post.slug.replace(/-/g, " ");
+    const titleEn = post.translations[0]?.title ?? "";
+    const query = guessSearchQuery(post.slug, titleEn);
     const filename = `${post.slug}.jpg`;
     const filepath = path.join(COVER_DIR, filename);
 
-    console.log(`\n[${post.slug}] Downloading for query: "${query}"`);
+    process.stdout.write(`[${post.slug}] "${query}" ... `);
 
-    let buf = await downloadFromUnsplash(query);
-    if (!buf || buf.length < 1000) {
-      console.log(`  Unsplash failed, trying Picsum...`);
-      buf = await downloadFromPicsum(post.slug);
-    }
-
-    if (!buf || buf.length < 1000) {
-      console.log(`  ✗ Failed to download image, skipping.`);
+    const buf = await downloadImage(query, post.slug);
+    if (!buf) {
+      console.log("FAILED");
+      failed++;
       continue;
     }
 
@@ -89,11 +138,11 @@ async function main() {
       data: { coverImage: coverUrl, coverSvg: null },
     });
 
-    console.log(`  ✓ Saved ${coverUrl} (${(buf.length / 1024).toFixed(1)} KB)`);
+    console.log(`OK (${(buf.length / 1024).toFixed(0)} KB)`);
     updated++;
   }
 
-  console.log(`\nDone. Updated ${updated}/${posts.length} articles.`);
+  console.log(`\nDone. Updated: ${updated}, Failed: ${failed}, Total: ${posts.length}`);
 }
 
 main()
