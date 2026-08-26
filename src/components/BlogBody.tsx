@@ -106,25 +106,6 @@ export default function BlogBody({ body }: { body: string }) {
       list.push({ type: "ol", text: line.replace(/^\d+\. /, "") });
       continue;
     }
-    if (/^!\[.*\]\(.*\)$/.test(line.trim())) {
-      key = flushList(key);
-      const imgMatch = line.trim().match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-      if (imgMatch) {
-        const [, alt, src] = imgMatch;
-        blocks.push(
-          <div key={key++} className="my-4 rounded-[14px] overflow-hidden border border-[var(--line-4)]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={src}
-              alt={alt}
-              className="w-full h-auto"
-              loading="lazy"
-            />
-          </div>,
-        );
-      }
-      continue;
-    }
     if (line.startsWith("> ")) {
       key = flushList(key);
       blocks.push(

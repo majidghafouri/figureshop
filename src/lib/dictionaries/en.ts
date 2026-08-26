@@ -746,7 +746,7 @@ export const en: typeof fa = {
       title_field: "Title",
       excerpt: "Excerpt",
       body: "Body",
-      bodyHint: "Write content in Markdown. Use ## for headings, ** for bold, * for italic.",
+      bodyHint: "Write content in Markdown. Use ## for headings, ** for bold, * for italic. Images are not supported in the body — use the cover image above.",
       none: "No category",
       create: "Create article",
       saveChanges: "Save changes",
