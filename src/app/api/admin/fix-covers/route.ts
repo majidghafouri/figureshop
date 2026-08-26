@@ -1,14 +1,9 @@
 import { NextRequest } from "next/server";
 import { ok, requireAdmin } from "@/lib/api";
 import prisma from "@/lib/db";
-import { writeFile, mkdir } from "fs/promises";
-import { existsSync } from "fs";
-import path from "path";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const COVER_DIR = path.resolve("public/uploads/blog-covers");
 
 const KEYWORD_MAP: Record<string, string> = {
   anime: "anime figure collectible",
@@ -57,8 +52,7 @@ const KEYWORD_MAP: Record<string, string> = {
 
 function guessSearchQuery(slug: string, titleEn: string): string {
   if (titleEn) {
-    const words = titleEn.toLowerCase().split(/\s+/).slice(0, 6);
-    return words.join(" ");
+    return titleEn.toLowerCase().split(/\s+/).slice(0, 6).join(" ");
   }
   const clean = slug.replace(/\d{4}-\d{2}-\d{2}$/, "").replace(/-/g, " ");
   for (const [keyword, query] of Object.entries(KEYWORD_MAP)) {
@@ -67,35 +61,29 @@ function guessSearchQuery(slug: string, titleEn: string): string {
   return clean + " collectible figure";
 }
 
-async function downloadImage(query: string): Promise<Buffer | null> {
+async function resolveImageUrl(query: string): Promise<string | null> {
   const tags = query.replace(/\s+/g, ",").slice(0, 80);
-  try {
-    const url = `https://loremflickr.com/1200/630/${tags}`;
-    const res = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(15000) });
-    if (res.ok) {
-      const buf = Buffer.from(await res.arrayBuffer());
-      if (buf.length > 2000) return buf;
-    }
-  } catch {}
-  try {
-    const fallbackTags = "figure,collectible,anime";
-    const url = `https://loremflickr.com/1200/630/${fallbackTags}`;
-    const res = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(15000) });
-    if (res.ok) {
-      const buf = Buffer.from(await res.arrayBuffer());
-      if (buf.length > 2000) return buf;
-    }
-  } catch {}
+  const urls = [
+    `https://loremflickr.com/1200/630/${tags}`,
+    `https://loremflickr.com/1200/630/figure,collectible,anime`,
+  ];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, {
+        redirect: "follow",
+        signal: AbortSignal.timeout(15000),
+      });
+      if (res.ok && res.headers.get("content-type")?.startsWith("image/")) {
+        return res.url;
+      }
+    } catch {}
+  }
   return null;
 }
 
 export async function POST(req: NextRequest) {
   const { error } = await requireAdmin(req);
   if (error) return error;
-
-  if (!existsSync(COVER_DIR)) {
-    await mkdir(COVER_DIR, { recursive: true });
-  }
 
   const posts = await prisma.blogPost.findMany({
     where: {
@@ -117,29 +105,27 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  const results: { slug: string; status: string }[] = [];
+  const results: { slug: string; status: string; url?: string }[] = [];
 
   for (const post of posts) {
     const titleEn = post.translations[0]?.title ?? "";
     const query = guessSearchQuery(post.slug, titleEn);
-    const filename = `${post.slug}.jpg`;
-    const filepath = path.join(COVER_DIR, filename);
 
-    const buf = await downloadImage(query);
-    if (!buf) {
-      results.push({ slug: post.slug, status: "failed" });
+    const imageUrl = await resolveImageUrl(query);
+    if (!imageUrl) {
+      await prisma.blogPost.update({
+        where: { id: post.id },
+        data: { coverImage: null, coverSvg: null },
+      });
+      results.push({ slug: post.slug, status: "nulled" });
       continue;
     }
 
-    await writeFile(filepath, buf);
-    const coverUrl = `/uploads/blog-covers/${filename}`;
-
     await prisma.blogPost.update({
       where: { id: post.id },
-      data: { coverImage: coverUrl, coverSvg: null },
+      data: { coverImage: imageUrl, coverSvg: null },
     });
-
-    results.push({ slug: post.slug, status: "updated" });
+    results.push({ slug: post.slug, status: "updated", url: imageUrl });
   }
 
   return ok({ total: posts.length, results });
