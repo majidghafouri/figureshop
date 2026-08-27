@@ -49,13 +49,13 @@ export async function POST(req: NextRequest) {
     if (parent.userId !== user.id) return fail("You can only reply to your own comments", 403);
 
     const replyCount = await prisma.comment.count({ where: { parentId: body.parentId } });
-    if (replyCount >= 5) return fail("Maximum 5 replies per comment", 400);
+    if (replyCount >= 5) return fail("max_replies", 400);
   } else {
     // Check one comment per user per target for top-level comments
     const existing = await prisma.comment.findFirst({
       where: { userId: user.id, targetType: body.targetType, targetId: body.targetId, parentId: null },
     });
-    if (existing) return fail("You have already commented on this", 400);
+    if (existing) return fail("already_commented", 400);
   }
 
   // For product comments: verify user has a completed order with this product
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
         order: { userId: user.id, status: { in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"] } },
       },
     });
-    if (!hasOrder) return fail("You can only comment on products you have purchased", 403);
+    if (!hasOrder) return fail("purchase_required", 403);
   }
 
   // For article comments: rate limit 3 per day
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
     const todayCount = await prisma.comment.count({
       where: { userId: user.id, targetType: "ARTICLE", parentId: null, createdAt: { gte: today } },
     });
-    if (todayCount >= 3) return fail("You can only write 3 article comments per day", 429);
+    if (todayCount >= 3) return fail("daily_limit", 429);
   }
 
   const comment = await prisma.comment.create({

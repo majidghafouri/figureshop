@@ -84,7 +84,15 @@ export default function Comments({ targetType, targetId, isLoggedIn, userId, dic
         setReplyTo(null);
         fetchComments();
       } else {
-        setMessage({ type: "err", text: json.error || dict.error });
+        const code = json.error as string;
+        const localized =
+          code === "max_replies" ? dict.maxReplies :
+          code === "already_commented" ? dict.alreadyCommented :
+          code === "daily_limit" ? dict.dailyLimit :
+          code === "purchase_required" ? dict.purchaseRequired :
+          code === "Unauthorized" ? dict.loginRequired :
+          null;
+        setMessage({ type: "err", text: localized || dict.error });
       }
     } catch {
       setMessage({ type: "err", text: dict.error });
