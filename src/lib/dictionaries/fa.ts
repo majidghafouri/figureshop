@@ -867,6 +867,11 @@ export const fa = {
       error: "خطا",
       unknown: "ناشناخته",
       required: "اسلاگ و نام فارسی الزامی است.",
+      favorites: "علاقه‌مندی‌ها",
+      favoritesCount: "{count} علاقه‌مند",
+      noFavorites: "هنوز علاقه‌مندی وجود ندارد",
+      favoritesList: "کاربرانی که این محصول را علاقه‌مند کرده‌اند",
+      close: "بستن",
     },
     categories: {
       title: "دسته‌بندی‌ها",

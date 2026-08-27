@@ -4,6 +4,7 @@ import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import prisma from "@/lib/db";
 import DeleteProductButton from "@/components/admin/DeleteProductButton";
+import FavoriteColumn from "@/components/admin/FavoriteColumn";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,13 @@ export default async function AdminProductsPage({
     include: {
       translations: { where: { locale } },
       category: { include: { translations: { where: { locale } } } },
+      favorites: {
+        select: {
+          createdAt: true,
+          user: { select: { name: true, email: true, phone: true } },
+        },
+        orderBy: { createdAt: "desc" as const },
+      },
     },
     orderBy: { createdAt: "desc" },
     take: 200,
@@ -49,6 +57,7 @@ export default async function AdminProductsPage({
               <th className="px-4 py-3">{p.brand}</th>
               <th className="px-4 py-3">{p.price}</th>
               <th className="px-4 py-3">{p.stock}</th>
+              <th className="px-4 py-3">{p.favorites}</th>
               <th className="px-4 py-3">{p.active}</th>
               <th className="px-4 py-3">{p.actions}</th>
             </tr>
@@ -89,6 +98,17 @@ export default async function AdminProductsPage({
                   <span className={`rounded-full px-2.5 py-1 text-[11px] font-[950] ${prod.stock > 0 ? "bg-[var(--success-soft)] text-[var(--success)]" : "bg-[var(--neutral-soft)] text-[var(--muted-3)]"}`}>
                     {prod.stock}
                   </span>
+                </td>
+                <td className="px-4 py-3">
+                  <FavoriteColumn
+                    users={prod.favorites}
+                    dict={{
+                      favorites: p.favorites,
+                      noFavorites: p.noFavorites,
+                      favoritesList: p.favoritesList,
+                      close: p.close,
+                    }}
+                  />
                 </td>
                 <td className="px-4 py-3">
                   <span className={`rounded-full px-2.5 py-1 text-[11px] font-[950] ${prod.isActive ? "bg-[var(--soft)] text-[var(--primary)]" : "bg-[var(--neutral-soft)] text-[var(--muted-3)]"}`}>

@@ -869,6 +869,11 @@ export const ar: typeof fa = {
       error: "خطأ",
       unknown: "غير معروف",
       required: "الرابط المختصر والاسم الفارسي مطلوبان.",
+      favorites: "المفضلة",
+      favoritesCount: "{count} مفضلة",
+      noFavorites: "لا توجد مفضلة بعد",
+      favoritesList: "المستخدمون الذين أضافوا هذا المنتج إلى المفضلة",
+      close: "إغلاق",
     },
     categories: {
       title: "الفئات",

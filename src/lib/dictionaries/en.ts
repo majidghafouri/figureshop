@@ -869,6 +869,11 @@ export const en: typeof fa = {
       error: "Error",
       unknown: "unknown",
       required: "Slug and fa name are required.",
+      favorites: "Favorites",
+      favoritesCount: "{count} favorites",
+      noFavorites: "No favorites yet",
+      favoritesList: "Users who favorited this product",
+      close: "Close",
     },
     categories: {
       title: "Categories",
