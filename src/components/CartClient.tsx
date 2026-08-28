@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 import { useCart } from "@/components/CartProvider";
 
@@ -62,10 +63,10 @@ export default function CartClient({
             <div key={item.id} className="py-5 flex gap-4 items-center">
               <Link
                 href={`${prefix}/products/${item.product.slug}`}
-                className="shrink-0 w-[84px] h-[84px] rounded-[16px] overflow-hidden border border-[var(--soft-line)] product-img-bg"
+                className="shrink-0 w-[84px] h-[84px] rounded-[16px] overflow-hidden border border-[var(--soft-line)] product-img-bg relative block"
               >
                 {item.product.images[0] ? (
-                  <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                  <Image src={item.product.images[0]} alt={item.product.name} fill sizes="84px" className="object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-[var(--line-6)]">
                     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="7" y="4" width="10" height="16" rx="2.5"/></svg>

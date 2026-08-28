@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 import { useCart } from "@/components/CartProvider";
@@ -251,9 +252,9 @@ export default function CheckoutClient({
         <div className="mt-4 space-y-3.5 max-h-[320px] overflow-auto no-scrollbar">
           {items.map((item) => (
             <div key={item.id} className="flex items-center gap-3">
-              <div className="w-[52px] h-[52px] rounded-[12px] overflow-hidden border border-[var(--soft-line)] product-img-bg shrink-0">
+              <div className="w-[52px] h-[52px] rounded-[12px] overflow-hidden border border-[var(--soft-line)] product-img-bg shrink-0 relative">
                 {item.product.images[0] ? (
-                  <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                  <Image src={item.product.images[0]} alt={item.product.name} fill sizes="52px" className="object-cover" />
                 ) : (
                   <div className="w-full h-full" />
                 )}

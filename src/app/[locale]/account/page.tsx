@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
@@ -193,9 +194,9 @@ export default async function AccountPage({
                   <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
                     {order.items.map((item) => (
                       <div key={item.id} className="flex items-center gap-3 bg-[var(--surface-2)] border border-[var(--soft-line)] rounded-[14px] p-3">
-                        <div className="w-[46px] h-[46px] rounded-[10px] overflow-hidden product-img-bg border border-[var(--soft-line)] shrink-0">
+                        <div className="w-[46px] h-[46px] rounded-[10px] overflow-hidden product-img-bg border border-[var(--soft-line)] shrink-0 relative">
                           {item.product.images[0] && (
-                            <img src={item.product.images[0]} alt="" className="w-full h-full object-cover" />
+                            <Image src={item.product.images[0]} alt="" fill sizes="46px" className="object-cover" />
                           )}
                         </div>
                         <div className="min-w-0">

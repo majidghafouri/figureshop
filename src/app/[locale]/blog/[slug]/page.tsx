@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, localePrefix, isLocale, formatDate } from "@/lib/i18n";
@@ -151,9 +152,8 @@ export default async function BlogPostPage({
             </div>
 
             {post.coverImage && (
-              <div className="mt-6 rounded-[24px] overflow-hidden border border-[var(--soft-line)] shadow-[0_16px_40px_rgba(20,45,90,0.10)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={post.coverImage} alt={post.title} className="w-full h-auto" />
+              <div className="relative mt-6 rounded-[24px] overflow-hidden border border-[var(--soft-line)] shadow-[0_16px_40px_rgba(20,45,90,0.10)] aspect-[16/10]">
+                <Image src={post.coverImage} alt={post.title} fill sizes="(max-width:1024px) 100vw, 820px" className="object-cover" />
               </div>
             )}
 

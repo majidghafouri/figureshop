@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, localePrefix, isLocale, formatDate } from "@/lib/i18n";
@@ -63,11 +64,13 @@ export default async function BlogPage({ params }: { params: { locale: string } 
                 >
                   <Link href={`${prefix}/blog/${post.slug}`} className="block">
                     <div className="relative aspect-[16/9] overflow-hidden product-img-bg">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <Image
                         src={post.coverImage ?? ""}
                         alt={post.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        fill
+                        sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
+                        loading="lazy"
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                       />
                       {post.isTrending && (
                         <span className="absolute top-3 right-3 bg-gradient-to-br from-[var(--teal-2)] to-[var(--primary)] text-white text-[11px] font-[950] rounded-full px-3 py-1 shadow-lg">

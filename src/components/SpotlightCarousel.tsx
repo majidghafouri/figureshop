@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ProductItem } from "@/lib/shop";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 
@@ -90,10 +91,13 @@ export default function SpotlightCarousel({
               {/* product image */}
               <div className="mt-4 relative rounded-[24px] overflow-hidden product-img-bg aspect-square border border-[var(--line-5)] shadow-[0_14px_40px_rgba(24,54,100,0.12)]">
                 {product.images[0] ? (
-                  <img
+                  <Image
                     src={product.images[0]}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width:640px) 80vw, (max-width:1024px) 50vw, 30vw"
+                    priority={i === 0}
+                    className="object-cover"
                   />
                 ) : null}
                 <span className="absolute top-3 rtl:left-3 ltr:right-3 bg-[var(--success-soft)] text-[var(--success)] rounded-full text-[11px] font-[950] px-2.5 py-1">

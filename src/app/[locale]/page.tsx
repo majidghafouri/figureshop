@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 import { Locale, localePrefix, isLocale, formatDate } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
@@ -420,11 +421,12 @@ export default async function HomePage({
                   >
                     <div className="grid md:grid-cols-[1.1fr_1fr] gap-0">
                       <div className="relative aspect-[16/10] md:aspect-auto overflow-hidden product-img-bg">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Image
                           src={featured.coverImage ?? ""}
                           alt={ft?.title ?? featured.slug}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                          fill
+                          sizes="(max-width:1024px) 100vw, 50vw"
+                          className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                         />
                         <span className="absolute top-4 right-4 bg-[var(--teal-soft)] text-[var(--teal)] border border-[var(--teal-soft-3)] rounded-full px-3.5 py-1.5 text-[11.5px] font-[950] shadow-sm">
                           {dict.blog.fromTheWeb}
