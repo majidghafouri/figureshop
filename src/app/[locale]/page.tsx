@@ -122,7 +122,7 @@ export default async function HomePage({
           <div className="max-w-[620px]">
             <div
               className="anim-fade-up inline-flex items-center gap-2.5 border border-[rgba(var(--teal-rgb),0.34)] bg-[rgba(232,255,252,0.74)] text-[var(--success-3)] rounded-full px-3.5 py-2 font-[950] text-[13.5px]"
-              style={{ animationDelay: "0.08s" }}
+              style={{ animationDelay: "0.02s" }}
             >
               <span className="w-[10px] h-[10px] rounded-full bg-[var(--teal)] anim-pulse-dot" />
               {dict.hero.eyebrow}
@@ -130,7 +130,7 @@ export default async function HomePage({
 
             <h1
               className="anim-fade-up mt-5 text-[clamp(38px,5.6vw,64px)] max-sm:text-[clamp(32px,10.5vw,46px)] leading-[1.18] tracking-[-1.8px] font-[1000] text-[var(--text)]"
-              style={{ animationDelay: "0.14s" }}
+              style={{ animationDelay: "0.04s" }}
             >
               {dict.hero.titleStart}
               <span
@@ -151,7 +151,7 @@ export default async function HomePage({
             <div
               className="anim-fade-up mt-6 grid grid-cols-[auto_minmax(0,1fr)] p-[14px_16px] border border-[rgba(var(--primary-rgb),0.18)] rounded-[24px] items-center gap-4"
               style={{
-                animationDelay: "0.2s",
+                animationDelay: "0.06s",
                 background:
                   "linear-gradient(135deg, var(--glass-92), var(--glass-tint))",
                 boxShadow: "0 16px 46px rgba(20,45,90,0.10)",
@@ -170,14 +170,14 @@ export default async function HomePage({
 
             <p
               className="anim-fade-up mt-5 text-[15.5px] max-sm:text-[15px] leading-[2.02] text-[var(--text-8)] font-[650]"
-              style={{ animationDelay: "0.26s" }}
+              style={{ animationDelay: "0.08s" }}
             >
               {dict.hero.lead}
             </p>
 
             <div
               className="anim-fade-up mt-7 flex flex-wrap items-center gap-3"
-              style={{ animationDelay: "0.32s" }}
+              style={{ animationDelay: "0.1s" }}
             >
               <Link
                 href={`${prefix}/products`}
@@ -196,7 +196,7 @@ export default async function HomePage({
 
             <div
               className="anim-fade-up mt-5 flex flex-wrap gap-2"
-              style={{ animationDelay: "0.38s" }}
+              style={{ animationDelay: "0.12s" }}
             >
               {dict.hero.chips.map((chip) => (
                 <span
@@ -210,7 +210,7 @@ export default async function HomePage({
 
             <p
               className="anim-fade-up mt-5 text-[var(--muted-5)] font-[700] text-[14px]"
-              style={{ animationDelay: "0.44s" }}
+              style={{ animationDelay: "0.14s" }}
             >
               {dict.hero.note}
             </p>

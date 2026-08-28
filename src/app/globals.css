@@ -327,7 +327,16 @@ body {
 
 /* ---------- Animation utility classes ---------- */
 .anim-fade-up {
-  animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade-up,
+  .anim-float-in,
+  .anim-chat-bubble,
+  .anim-pop-soft {
+    animation: none !important;
+  }
 }
 
 .anim-float-in {
