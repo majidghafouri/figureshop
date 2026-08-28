@@ -2,6 +2,7 @@ import { put } from "@vercel/blob";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import crypto from "crypto";
+import sharp from "sharp";
 import prisma from "@/lib/db";
 import { Locale } from "@/lib/i18n";
 import { notifySubscribersOfNewPost } from "@/lib/newsletter";
@@ -546,17 +547,23 @@ async function downloadCover(imageUrl: string): Promise<string | null> {
     const buffer = Buffer.from(await res.arrayBuffer());
     if (buffer.length > 8 * 1024 * 1024) return null;
 
-    const ext = ct.includes("png") ? ".png" : ct.includes("webp") ? ".webp" : ".jpg";
-    const filename = `web-${Date.now()}-${crypto.randomBytes(4).toString("hex")}${ext}`;
+    let out: Buffer = buffer;
+    try {
+      out = await sharp(buffer, { animated: true }).webp({ quality: 82, effort: 4 }).toBuffer();
+    } catch {
+      out = buffer;
+    }
+
+    const filename = `web-${Date.now()}-${crypto.randomBytes(4).toString("hex")}.webp`;
     const pathname = `uploads/web-articles/${filename}`;
 
     if (process.env.BLOB_READ_WRITE_TOKEN) {
-      const blob = await put(pathname, buffer, { access: "public", addRandomSuffix: false });
+      const blob = await put(pathname, out, { access: "public", addRandomSuffix: false });
       return blob.url;
     }
     const dir = path.join(process.cwd(), "public", "uploads", "web-articles");
     await mkdir(dir, { recursive: true });
-    await writeFile(path.join(dir, filename), buffer);
+    await writeFile(path.join(dir, filename), out);
     return `/uploads/web-articles/${filename}`;
   } catch {
     return null;

@@ -27,7 +27,20 @@ async function prepareCursor(buffer: Buffer): Promise<Buffer> {
   }
 }
 
-function extFrom(name: string, mime: string) {
+async function toWebP(buffer: Buffer): Promise<Buffer | null> {
+  try {
+    const meta = await sharp(buffer, { animated: true }).metadata();
+    const animated = (meta.pages ?? 0) > 1;
+    return await sharp(buffer, { animated, failOn: "none" })
+      .webp({ quality: 82, effort: 4, loop: animated ? 0 : undefined })
+      .toBuffer();
+  } catch {
+    return null;
+  }
+}
+
+function extFrom(name: string, mime: string, isConvertedWebP: boolean) {
+  if (isConvertedWebP) return ".webp";
   const e = path.extname(name).toLowerCase();
   if (e && (e === ".jpg" || e === ".jpeg" || e === ".png" || e === ".webp" || e === ".gif" || e === ".avif" || e === ".mp3" || e === ".ogg" || e === ".wav" || e === ".m4a" || e === ".aac" || e === ".webm")) {
     return e;
@@ -61,8 +74,18 @@ export async function POST(req: NextRequest) {
 
       let buffer: Buffer = Buffer.from(await file.arrayBuffer());
       const kind = isAudio ? "audio" : isCursor ? "cur" : "img";
+
+      let convertedToWebP = false;
+      if (isImage && !isCursor) {
+        const webp = await toWebP(buffer);
+        if (webp) {
+          buffer = webp;
+          convertedToWebP = true;
+        }
+      }
       if (isCursor && isImage) buffer = await prepareCursor(buffer);
-      const name = `${kind}-${Date.now()}-${crypto.randomBytes(5).toString("hex")}${extFrom(file.name, file.type)}`;
+
+      const name = `${kind}-${Date.now()}-${crypto.randomBytes(5).toString("hex")}${isCursor && isImage ? ".png" : extFrom(file.name, file.type, convertedToWebP)}`;
       const pathname = `uploads/${name}`;
 
       if (process.env.BLOB_READ_WRITE_TOKEN) {

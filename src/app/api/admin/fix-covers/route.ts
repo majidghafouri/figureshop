@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { ok, requireAdmin } from "@/lib/api";
 import prisma from "@/lib/db";
 import { put } from "@vercel/blob";
+import sharp from "sharp";
 import crypto from "crypto";
 
 export const runtime = "nodejs";
@@ -84,8 +85,16 @@ async function fetchImageBuffer(query: string): Promise<Buffer | null> {
 }
 
 async function uploadToBlob(buffer: Buffer, slug: string): Promise<string> {
-  const name = `blog-covers/${slug}-${crypto.randomBytes(4).toString("hex")}.jpg`;
-  const blob = await put(name, buffer, {
+  let out = buffer;
+  try {
+    out = await sharp(buffer, { animated: true })
+      .webp({ quality: 82, effort: 4 })
+      .toBuffer();
+  } catch {
+    out = buffer;
+  }
+  const name = `blog-covers/${slug}-${crypto.randomBytes(4).toString("hex")}.webp`;
+  const blob = await put(name, out, {
     access: "public",
     addRandomSuffix: false,
   });
