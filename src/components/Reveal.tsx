@@ -17,16 +17,28 @@ export default function Reveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    const reveal = () => setVisible(true);
+
+    // If the element's top is already within (or above) the viewport, reveal
+    // it immediately. This keeps tall blocks (e.g. a full blog/category grid
+    // wrapped in a single Reveal) from staying invisible until the user
+    // scrolls enough of the block into view.
+    if (el.getBoundingClientRect().top < window.innerHeight - 40) {
+      reveal();
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setVisible(true);
-            observer.unobserve(entry.target);
+            reveal();
+            observer.disconnect();
           }
         });
       },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.01, rootMargin: "0px 0px -40px 0px" }
     );
     observer.observe(el);
     return () => observer.disconnect();
