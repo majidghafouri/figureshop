@@ -5,12 +5,16 @@ import { createSessionCookie, setSessionCookie } from "@/lib/auth";
 import { hashPassword, validatePassword } from "@/lib/password";
 import { mergeGuestCart } from "@/lib/cart";
 import { resolveIdentifierFromBody } from "@/lib/identifiers";
+import { rateLimitOrFail } from "@/lib/rate-limit";
 
 const MAX_ATTEMPTS = 5;
 
 type OtpPurpose = "REGISTER" | "PASSWORD_RESET";
 
 export async function POST(req: NextRequest) {
+  const ipLimit = rateLimitOrFail(req, 30, 60_000, "otp-verify:ip");
+  if (!ipLimit.allowed) return ipLimit.response;
+
   const body = parseJson<{ email?: string; phone?: string; code?: string; purpose?: OtpPurpose; password?: string }>(
     await req.text(),
   );

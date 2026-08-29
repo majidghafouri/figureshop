@@ -3,9 +3,10 @@ import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 
-const SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "figureforge-dev-secret-change-in-production"
-);
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export const SESSION_COOKIE = "figureforge_session";
 

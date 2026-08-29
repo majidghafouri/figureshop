@@ -4,6 +4,7 @@ import { ok, fail, parseJson } from "@/lib/api";
 import { sendOtpEmail, isEmailConfigured } from "@/lib/email";
 import { sendOtpViaLookup, isSmsConfigured } from "@/lib/kavenegar";
 import { resolveIdentifierFromBody, generateCode } from "@/lib/identifiers";
+import { rateLimitOrFail } from "@/lib/rate-limit";
 
 const OTP_TTL_MS = 5 * 60 * 1000;
 const OTP_RESEND_COOLDOWN_MS = 3 * 60 * 1000;
@@ -11,9 +12,15 @@ const OTP_RESEND_COOLDOWN_MS = 3 * 60 * 1000;
 type OtpPurpose = "REGISTER" | "PASSWORD_RESET";
 
 export async function POST(req: NextRequest) {
+  const ipLimit = rateLimitOrFail(req, 10, 60_000, "otp:ip");
+  if (!ipLimit.allowed) return ipLimit.response;
+
   const body = parseJson<{ email?: string; phone?: string; purpose?: OtpPurpose }>(await req.text());
   const identifier = resolveIdentifierFromBody(body ?? {});
   if (!identifier) return fail("invalid_identifier");
+
+  const targetLimit = rateLimitOrFail(req, 3, 60_000, `otp:${identifier.value}`);
+  if (!targetLimit.allowed) return targetLimit.response;
 
   const purpose = body?.purpose ?? "REGISTER";
   const { field, value } = identifier;

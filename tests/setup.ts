@@ -1,6 +1,12 @@
 import { vi } from "vitest";
 import { webcrypto } from "node:crypto";
 
+// Ensure a JWT secret is available to the real auth/oauth modules under test.
+// The app now requires JWT_SECRET and fails hard when it is missing.
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = "figureforge-test-secret-not-used-in-production";
+}
+
 // Polyfill crypto global for Node 18 (needed by jose and identifiers)
 if (typeof globalThis.crypto === "undefined") {
   (globalThis as any).crypto = webcrypto;

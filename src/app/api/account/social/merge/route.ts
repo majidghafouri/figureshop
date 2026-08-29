@@ -2,22 +2,38 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { ok, fail, parseJson } from "@/lib/api";
 import { getSessionUserFromRequest } from "@/lib/auth";
+import { verifyMergeIntent } from "@/lib/oauth";
+import { rateLimitOrFail } from "@/lib/rate-limit";
 
 interface MergePayload {
-  socialAccountId?: string;
+  mergeToken?: string;
   name?: string;
   email?: string;
   phone?: string;
 }
 
 export async function POST(req: NextRequest) {
+  const limiter = rateLimitOrFail(req, 10, 60_000, "social-merge:ip");
+  if (!limiter.allowed) return limiter.response;
+
   const user = await getSessionUserFromRequest(req);
   if (!user) {
     return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), { status: 401 });
   }
 
   const body = parseJson<MergePayload>(await req.text());
-  const socialAccountId = body?.socialAccountId?.trim();
+  const mergeToken = body?.mergeToken?.trim();
+  if (!mergeToken) return fail("merge_token_required", 400);
+
+  const intent = await verifyMergeIntent(mergeToken);
+  if (!intent) return fail("invalid_merge_token", 403);
+
+  // The merge intent is bound to the account that initiated the OAuth link.
+  // Only that user may complete the merge, and only for the social account
+  // that was returned to them during that attempt.
+  if (intent.fb_sub !== user.id) return fail("invalid_merge_token", 403);
+
+  const socialAccountId = intent.socialAccountId;
   if (!socialAccountId) return fail("socialAccountId_required");
 
   const socialAccount = await prisma.socialAccount.findUnique({

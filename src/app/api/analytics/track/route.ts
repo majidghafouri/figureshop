@@ -7,8 +7,12 @@ import {
   isAnalyticsEventType,
 } from "@/lib/analytics";
 import { getVisitorIdFromRequest, registerVisitor } from "@/lib/reactions";
+import { rateLimitOrFail } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const limiter = rateLimitOrFail(req, 120, 60_000, "track:ip");
+  if (!limiter.allowed) return limiter.response;
+
   const body = parseJson<{
     type?: string;
     path?: string;

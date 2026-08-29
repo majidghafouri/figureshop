@@ -1,8 +1,9 @@
 import { SignJWT, jwtVerify } from "jose";
 
-const SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "figureforge-dev-secret-change-in-production"
-);
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export type OAuthProvider = "google" | "github";
 
@@ -42,6 +43,45 @@ export async function verifyOAuthState(
   try {
     const { payload } = await jwtVerify(state, SECRET);
     return payload as unknown as OAuthState;
+  } catch {
+    return null;
+  }
+}
+
+// ---------- Merge intent (bind a conflict to the current user) ----------
+
+export interface MergeIntent {
+  fb_sub: string; // the user whose account will receive the merge
+  socialAccountId: string;
+}
+
+/**
+ * Create a short-lived, signed token proving that `userId` legitimately
+ * discovered `socialAccountId` through the just-completed OAuth link attempt.
+ * Without this, the merge endpoint would accept an arbitrary socialAccountId
+ * and let an attacker take over another user's account (orders, favorites,
+ * coupons) and delete the victim.
+ */
+export async function createMergeIntent(
+  userId: string,
+  socialAccountId: string
+): Promise<string> {
+  return new SignJWT({ fb_sub: userId, socialAccountId })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("10m")
+    .sign(SECRET);
+}
+
+export async function verifyMergeIntent(
+  token: string
+): Promise<MergeIntent | null> {
+  try {
+    const { payload } = await jwtVerify(token, SECRET);
+    if (typeof payload.fb_sub === "string" && typeof payload.socialAccountId === "string") {
+      return { fb_sub: payload.fb_sub, socialAccountId: payload.socialAccountId };
+    }
+    return null;
   } catch {
     return null;
   }

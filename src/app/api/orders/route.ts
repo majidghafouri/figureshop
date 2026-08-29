@@ -74,12 +74,18 @@ export async function POST(req: NextRequest) {
   let couponDiscount = 0;
   let couponId: string | null = null;
   if (body.couponId) {
-    const coupon = await prisma.coupon.findUnique({ where: { id: body.couponId } });
+    const coupon = await prisma.coupon.findUnique({
+      where: { id: body.couponId },
+      include: { allowedUsers: { select: { id: true } } },
+    });
     if (!coupon || !coupon.isActive) return fail("coupon_invalid");
     const now = new Date();
     if (now < coupon.validFrom || now > coupon.validUntil) return fail("coupon_invalid");
     if (coupon.usageLimit != null && coupon.usedCount >= coupon.usageLimit) return fail("coupon_invalid");
     if (coupon.minOrderAmount != null && subtotal < coupon.minOrderAmount) return fail("coupon_invalid");
+    if (coupon.allowedUsers.length > 0 && !coupon.allowedUsers.some((u) => u.id === user.id)) {
+      return fail("coupon_invalid");
+    }
 
     if (coupon.type === "PERCENTAGE") {
       couponDiscount = Math.round((subtotal * coupon.value) / 100);

@@ -3,6 +3,7 @@ import prisma from "@/lib/db";
 import { ok, fail, parseJson } from "@/lib/api";
 import { getSetting } from "@/lib/settings";
 import { sendEmail } from "@/lib/email";
+import { rateLimitOrFail } from "@/lib/rate-limit";
 
 type ContactPayload = {
   name?: string;
@@ -14,6 +15,9 @@ type ContactPayload = {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: NextRequest) {
+  const limiter = rateLimitOrFail(req, 5, 60_000, "contact:ip");
+  if (!limiter.allowed) return limiter.response;
+
   const body = parseJson<ContactPayload>(await req.text());
   const name = body?.name?.trim() ?? "";
   const email = body?.email?.trim() ?? "";

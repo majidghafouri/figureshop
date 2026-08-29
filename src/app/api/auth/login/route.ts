@@ -5,14 +5,21 @@ import { createSessionCookie, setSessionCookie } from "@/lib/auth";
 import { verifyPassword } from "@/lib/password";
 import { mergeGuestCart } from "@/lib/cart";
 import { resolveIdentifierFromBody } from "@/lib/identifiers";
+import { rateLimitOrFail } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const ipLimit = rateLimitOrFail(req, 20, 60_000, "login:ip");
+  if (!ipLimit.allowed) return ipLimit.response;
+
   const body = parseJson<{ email?: string; phone?: string; password?: string }>(await req.text());
   const identifier = resolveIdentifierFromBody(body ?? {});
   const password = body?.password ?? "";
 
   if (!identifier) return fail("invalid_identifier");
   if (!password) return fail("invalid_password");
+
+  const targetLimit = rateLimitOrFail(req, 5, 60_000, `login:${identifier.value}`);
+  if (!targetLimit.allowed) return targetLimit.response;
 
   const { field, value } = identifier;
 

@@ -2,8 +2,12 @@ import { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/api";
 import { getSessionUser } from "@/lib/auth";
 import { subscribeEmail } from "@/lib/newsletter";
+import { rateLimitOrFail } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const limiter = rateLimitOrFail(req, 5, 60_000, "newsletter:ip");
+  if (!limiter.allowed) return limiter.response;
+
   let body: { email?: string; locale?: string };
   try {
     body = await req.json();

@@ -1,7 +1,20 @@
 import { ReactNode } from "react";
 
-function renderInline(text: string, key: number) {
-  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]*\]\([^)]*\))/g);
+const SAFE_URL_RE = /^(https?:|mailto:|\/|\.\/|\.\.\/|#)/i;
+
+/**
+ * Block dangerous URL schemes (javascript:, data:, vbscript:, etc.) in
+ * markdown links. Markdown links are rendered straight into an href, so an
+ * attacker-controlled URL like `[x](javascript:alert(1))` would otherwise
+ * execute script on click.
+ */
+function safeUrl(url: string): string | null {
+  if (!url || /[\u0000-\u001f\u007f]/.test(url)) return null;
+  if (SAFE_URL_RE.test(url) || url.startsWith("/")) return url;
+  return null;
+}
+
+function renderInline(text: string, key: number) {  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]*\]\([^)]*\))/g);
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
       return (
@@ -23,11 +36,19 @@ function renderInline(text: string, key: number) {
     const linkMatch = part.match(/^\[([^\]]*)\]\(([^)]*)\)$/);
     if (linkMatch) {
       const [, href, url] = linkMatch;
-      const isExternal = /^https?:\/\//.test(url);
+      const safe = safeUrl(url);
+      const isExternal = /^https?:\/\//.test(url ?? "");
+      if (safe === null) {
+        return (
+          <span key={`${key}-${i}`}>
+            {href}({url})
+          </span>
+        );
+      }
       return (
         <a
           key={`${key}-${i}`}
-          href={url}
+          href={safe}
           {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
           className="inline-flex items-center gap-1 text-[var(--primary)] underline underline-offset-2 decoration-[var(--primary)]/30 hover:decoration-[var(--primary)] transition-colors"
         >

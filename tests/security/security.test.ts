@@ -249,9 +249,7 @@ describe("Security: JWT Token Verification", () => {
 
   it("rejects expired tokens", async () => {
     const { SignJWT } = await import("jose");
-    const secret = new TextEncoder().encode(
-      process.env.JWT_SECRET || "figureforge-dev-secret-change-in-production"
-    );
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
 
     const token = await new SignJWT({
       sub: "user1",

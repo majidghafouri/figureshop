@@ -13,18 +13,34 @@ const ALLOWED_AUDIO = /^audio\/(mpeg|mp3|ogg|wav|m4a|aac|webm)$/;
 const MAX_SIZE = 25 * 1024 * 1024;
 const CURSOR_MAX = 32;
 
-async function prepareCursor(buffer: Buffer): Promise<Buffer> {
-  try {
-    return await sharp(buffer)
-      .resize(CURSOR_MAX, CURSOR_MAX, {
-        fit: "contain",
-        background: { r: 0, g: 0, b: 0, alpha: 0 },
-      })
-      .png()
-      .toBuffer();
-  } catch {
-    return buffer;
+/**
+ * Verify that a buffer actually contains a known audio format by inspecting
+ * its "magic bytes"/signature rather than trusting the client-supplied MIME.
+ * Returns true when the content matches a recognized audio container so a
+ * forged audio/* MIME cannot smuggle arbitrary binary content.
+ */
+function isRealAudio(buffer: Buffer): boolean {
+  const head = buffer.subarray(0, 12).toString("latin1");
+  if (head.startsWith("ID3") || head.startsWith("OggS") || head.startsWith("RIFF") || head.startsWith("fLaC")) {
+    return true;
   }
+  if (buffer.length >= 2 && buffer[0] === 0xff && (buffer[1] & 0xe0) === 0xe0) {
+    return true; // MPEG sync frame (mp3)
+  }
+  if (head.startsWith("ftyp")) {
+    return head.includes("M4A") || head.includes("mp42") || head.includes("isom") || head.includes("M4V");
+  }
+  return false;
+}
+
+async function prepareCursor(buffer: Buffer): Promise<Buffer> {
+  return sharp(buffer)
+    .resize(CURSOR_MAX, CURSOR_MAX, {
+      fit: "contain",
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .png()
+    .toBuffer();
 }
 
 async function toWebP(buffer: Buffer): Promise<Buffer | null> {
@@ -75,15 +91,25 @@ export async function POST(req: NextRequest) {
       let buffer: Buffer = Buffer.from(await file.arrayBuffer());
       const kind = isAudio ? "audio" : isCursor ? "cur" : "img";
 
+      if (isAudio && !isRealAudio(buffer)) {
+        return fail("invalid_audio");
+      }
+
       let convertedToWebP = false;
       if (isImage && !isCursor) {
+        const meta = await sharp(buffer, { animated: true }).metadata().catch(() => null);
+        if (!meta || !meta.format) return fail("invalid_image");
         const webp = await toWebP(buffer);
         if (webp) {
           buffer = webp;
           convertedToWebP = true;
         }
       }
-      if (isCursor && isImage) buffer = await prepareCursor(buffer);
+      if (isCursor && isImage) {
+        const meta = await sharp(buffer).metadata().catch(() => null);
+        if (!meta || !meta.format) return fail("invalid_image");
+        buffer = await prepareCursor(buffer);
+      }
 
       const name = `${kind}-${Date.now()}-${crypto.randomBytes(5).toString("hex")}${isCursor && isImage ? ".png" : extFrom(file.name, file.type, convertedToWebP)}`;
       const pathname = `uploads/${name}`;

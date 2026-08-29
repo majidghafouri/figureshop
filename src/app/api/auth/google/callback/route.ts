@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { verifyOAuthState, exchangeGoogleCode, findOrCreateSocialUser, linkSocialAccount } from "@/lib/oauth";
+import { verifyOAuthState, exchangeGoogleCode, findOrCreateSocialUser, linkSocialAccount, createMergeIntent } from "@/lib/oauth";
 
 const BASE = process.env.APP_URL || "https://figureforge.ir";
 
@@ -32,9 +32,13 @@ export async function GET(req: NextRequest) {
       }
 
       if (result.status === "conflict" && result.conflict) {
+        const mergeToken = await createMergeIntent(
+          payload.linkUserId,
+          result.conflict.socialAccountId,
+        );
         const redirectUrl = new URL(payload.redirect || "/", BASE);
         redirectUrl.searchParams.set("merge", "1");
-        redirectUrl.searchParams.set("socialAccountId", result.conflict.socialAccountId);
+        redirectUrl.searchParams.set("mergeToken", mergeToken);
         redirectUrl.searchParams.set("provider", "google");
         if (result.conflict.otherName) redirectUrl.searchParams.set("otherName", result.conflict.otherName);
         if (result.conflict.otherEmail) redirectUrl.searchParams.set("otherEmail", result.conflict.otherEmail);
