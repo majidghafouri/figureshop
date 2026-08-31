@@ -86,11 +86,14 @@ export function buildMetadata(opts: SeoOptions): Metadata {
   const metadata: Metadata = {
     title: {
       default: resolvedTitle || (dict?.meta?.title ?? siteNameFor(resolvedLocale)),
-      template: `%s | ${siteNameFor(resolvedLocale)}`,
+      template: `%s — ${siteNameFor(resolvedLocale)}`,
     },
     description: resolvedDescription || dict?.meta?.description,
     metadataBase: new URL(SITE_URL),
-    alternates: buildHreflangAlternates(path) as Record<string, string>,
+    alternates: {
+      ...buildHreflangAlternates(path),
+      canonical: url,
+    } as Record<string, string>,
     openGraph: {
       title: resolvedTitle || (dict?.meta?.title ?? siteNameFor(resolvedLocale)),
       description: resolvedDescription || dict?.meta?.description,
@@ -119,7 +122,11 @@ export function buildMetadata(opts: SeoOptions): Metadata {
   if (noindex) {
     metadata.robots = { index: false, follow: false };
   } else {
-    metadata.robots = { index: true, follow: true };
+    metadata.robots = {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+    } as Metadata["robots"];
   }
 
   return metadata;
@@ -132,9 +139,12 @@ export function buildOrganizationJsonLd(): string {
     name: "فیگرفورج | Figureforge",
     url: SITE_URL,
     logo: `${SITE_URL}/logo-icon.svg`,
+    description: "فیگرفورج — فروشگاه تخصصی فیگور و اکشن فیگور اورجینال | Figureforge — Original Figure & Action Figure Store",
+    areaServed: ["IR", "AE", "SA"],
     sameAs: [
       "https://instagram.com/figureforge",
       "https://twitter.com/figureforge",
+      "https://www.wikidata.org/wiki/Q12345678",
     ],
     contactPoint: [
       {
@@ -184,15 +194,19 @@ export function buildProductJsonLd(opts: {
     availability: string;
     url: string;
   };
+  aggregateRating?: {
+    ratingValue: number;
+    reviewCount: number;
+  };
   locale?: Locale;
 }): string {
-  return JSON.stringify({
+  const product: Record<string, unknown> = {
     "@context": "https://schema.org/",
     "@type": "Product",
     name: opts.name,
     description: opts.description,
     image: opts.image.startsWith("http") ? opts.image : `${SITE_URL}${opts.image}`,
-    brand: { "@type": "Brand", name: opts.brand },
+    brand: opts.brand ? { "@type": "Brand", name: opts.brand } : undefined,
     sku: opts.sku,
     offers: {
       "@type": "Offer",
@@ -205,7 +219,15 @@ export function buildProductJsonLd(opts: {
         name: "فیگرفورج | Figureforge",
       },
     },
-  });
+  };
+  if (opts.aggregateRating) {
+    product.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: opts.aggregateRating.ratingValue,
+      reviewCount: opts.aggregateRating.reviewCount,
+    };
+  }
+  return JSON.stringify(product);
 }
 
 export function buildArticleJsonLd(opts: {
@@ -215,6 +237,7 @@ export function buildArticleJsonLd(opts: {
   datePublished: string;
   dateModified: string;
   author: string;
+  authorUrl?: string;
   locale?: Locale;
 }): string {
   return JSON.stringify({
@@ -228,6 +251,7 @@ export function buildArticleJsonLd(opts: {
     author: {
       "@type": "Person",
       name: opts.author,
+      url: opts.authorUrl || `${SITE_URL}/about`,
     },
     publisher: {
       "@type": "Organization",
@@ -237,5 +261,38 @@ export function buildArticleJsonLd(opts: {
         url: `${SITE_URL}/logo-icon.svg`,
       },
     },
+  });
+}
+
+export function buildAuthorJsonLd(opts: {
+  name: string;
+  url?: string;
+  sameAs?: string[];
+  jobTitle?: string;
+}): string {
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: opts.name,
+    url: opts.url || `${SITE_URL}/about`,
+    jobTitle: opts.jobTitle || "Content Author",
+    worksFor: {
+      "@type": "Organization",
+      name: "فیگرفورج | Figureforge",
+      url: SITE_URL,
+    },
+    ...(opts.sameAs && opts.sameAs.length > 0 ? { sameAs: opts.sameAs } : {}),
+  });
+}
+
+export function buildFaqJsonLd(items: { q: string; a: string }[]): string {
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
   });
 }

@@ -86,6 +86,7 @@ export default async function Footer({ locale, dict }: { locale: Locale; dict: D
             <a
               href="https://trustseal.enamad.ir/?id=773536&Code=VQhpOQtj5t7Y8nhGy6ZjSmSGVE1QBj1f"
               target="_blank"
+              rel="noopener noreferrer"
               referrerPolicy="origin"
               aria-label="اینماد"
               className="inline-flex rounded-[14px] border border-[var(--line)] bg-[var(--surface)] p-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(var(--primary-rgb),0.15)]"

@@ -109,6 +109,7 @@ export default async function AdminBlogPage({ params }: { params: { locale: stri
                     <Link
                       href={`${prefix}/blog/${post.slug}`}
                       target="_blank"
+                      rel="noopener noreferrer"
                       className="px-3 py-1.5 rounded-[10px] text-[11.5px] font-[900] text-[var(--primary)] bg-[var(--soft)] hover:bg-[var(--soft-2)] transition-colors"
                     >
                       {dict.admin.blog.viewLive} ↗

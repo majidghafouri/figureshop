@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
-import { buildMetadata, buildBreadcrumbJsonLd } from "@/lib/seo";
+import { buildMetadata, buildBreadcrumbJsonLd, buildFaqJsonLd } from "@/lib/seo";
 import Reveal from "@/components/Reveal";
 import JsonLd from "@/components/JsonLd";
 
@@ -28,17 +28,13 @@ export default function FaqPage({ params }: { params: { locale: string } }) {
   const dict = getDictionary(locale);
   const prefix = localePrefix(locale);
 
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: dict.faq.categories.flatMap((c) =>
-      c.items.map((item) => ({
-        "@type": "Question",
-        name: item.q,
-        acceptedAnswer: { "@type": "Answer", text: item.a },
-      })),
+  const faqJsonLd = JSON.parse(
+    buildFaqJsonLd(
+      dict.faq.categories.flatMap((c) =>
+        c.items.map((item) => ({ q: item.q, a: item.a })),
+      ),
     ),
-  };
+  );
 
   return (
     <div className="relative overflow-hidden py-[40px] max-sm:py-[28px]"
