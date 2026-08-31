@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, localePrefix, isLocale } from "@/lib/i18n";
@@ -135,7 +136,16 @@ export default async function CategoryPage({
         {/* category hero */}
         <div className="mt-6 rounded-[28px] overflow-hidden relative border border-[var(--line)]">
           {cat.image ? (
-            <img src={cat.image} alt={name} className="absolute inset-0 w-full h-full object-cover" />
+            <Image
+              src={cat.image}
+              alt={name}
+              fill
+              sizes="100vw"
+              width={1200}
+              height={400}
+              className="absolute inset-0 w-full h-full object-cover"
+              priority
+            />
           ) : (
             <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(120deg,var(--primary),var(--sky))" }} />
           )}

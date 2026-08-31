@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
@@ -68,7 +69,17 @@ export default async function AdminProductsPage({
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <div className="w-[44px] h-[44px] rounded-[10px] overflow-hidden product-img-bg border border-[var(--soft-line)] shrink-0">
-                      {prod.images[0] && <img src={prod.images[0]} alt="" className="w-full h-full object-cover" />}
+                      {prod.images[0] && (
+                        <Image
+                          src={prod.images[0]}
+                          alt=""
+                          fill
+                          sizes="44px"
+                          width={44}
+                          height={44}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                     </div>
                     <div className="min-w-0">
                       <p className="text-[13.5px] font-[950] text-[var(--text)] line-clamp-1">{prod.translations[0]?.name ?? prod.slug}</p>

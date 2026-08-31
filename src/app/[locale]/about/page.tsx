@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
@@ -53,11 +54,16 @@ export default async function AboutPage({ params }: { params: { locale: string }
               <div className="aspect-[4/3] rounded-[28px] product-img-bg border border-[var(--line)] overflow-hidden shadow-[0_20px_54px_rgba(20,45,90,0.12)]"
                 style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky),var(--teal))" }}
               >
-                <img
+                <Image
                   src="/logo.png"
                   alt={dict.about.title}
+                  fill
+                  sizes="(max-width:1024px) 100vw, 50vw"
+                  width={800}
+                  height={600}
                   className="w-full h-full object-cover object-center"
                   style={{ filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.15))" }}
+                  priority
                 />
                 <div className="absolute -bottom-4 -right-4 bg-[var(--surface)] rounded-[18px] px-5 py-3 shadow-[0_12px_32px_rgba(20,45,90,0.15)] border border-[var(--line)]">
                   <span className="text-[20px] font-[1000] text-[var(--primary)]">500+</span>

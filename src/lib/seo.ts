@@ -316,3 +316,36 @@ export function buildFaqJsonLd(items: { q: string; a: string }[]): string {
     })),
   });
 }
+
+export function buildReviewJsonLd(opts: {
+  author: string;
+  datePublished: string;
+  reviewBody: string;
+  reviewRating: {
+    ratingValue: number;
+    bestRating?: number;
+    worstRating?: number;
+  };
+  itemReviewed: {
+    "@type": "Product";
+    name: string;
+  };
+}): string {
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Review",
+    author: {
+      "@type": "Person",
+      name: opts.author,
+    },
+    datePublished: opts.datePublished,
+    reviewBody: opts.reviewBody,
+    reviewRating: {
+      "@type": "Rating",
+      ratingValue: opts.reviewRating.ratingValue,
+      bestRating: opts.reviewRating.bestRating || 5,
+      worstRating: opts.reviewRating.worstRating || 1,
+    },
+    itemReviewed: opts.itemReviewed,
+  });
+}

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { Locale, isLocale, localePrefix } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import prisma from "@/lib/db";
@@ -91,7 +92,17 @@ export default async function AdminOrdersPage({
                 {o.items.map((item) => (
                   <div key={item.id} className="flex items-center gap-2.5 bg-[var(--surface-2)] border border-[var(--soft-line)] rounded-[12px] p-2.5">
                     <div className="w-[38px] h-[38px] rounded-[8px] overflow-hidden product-img-bg shrink-0">
-                      {item.product.images[0] && <img src={item.product.images[0]} alt="" className="w-full h-full object-cover" />}
+                      {item.product.images[0] && (
+                        <Image
+                          src={item.product.images[0]}
+                          alt=""
+                          fill
+                          sizes="38px"
+                          width={38}
+                          height={38}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                     </div>
                     <div className="min-w-0">
                       <p className="text-[12px] font-[950] text-[var(--text)] line-clamp-1" dir="ltr">{item.product.slug}</p>

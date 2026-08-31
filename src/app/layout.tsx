@@ -41,7 +41,6 @@ export default async function RootLayout({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#3454d1" />
-        <link rel="canonical" href={SITE_URL} />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/logo-icon.svg" />
         <link rel="manifest" href="/manifest.json" />
@@ -54,6 +53,7 @@ export default async function RootLayout({
         <link rel="preload" as="font" type="font/woff2" href="/_next/static/media/vazirmatn-latin-700-normal.woff2" crossOrigin="anonymous" />
         <link rel="alternate" type="application/rss+xml" title="فیگرفورج | Figureforge" href="/rss.xml" />
         <script
+          defer
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem("figureforge-theme");document.documentElement.dataset.theme=t==="light"?"light":"dark";}catch(e){document.documentElement.dataset.theme="dark";}})();`,
           }}

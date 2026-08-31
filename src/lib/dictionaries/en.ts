@@ -165,6 +165,7 @@ export const en: typeof fa = {
         purchaseRequired: "You can only comment on products you have purchased",
         maxReplies: "Maximum 5 replies reached",
       },
+      faqHeading: "Frequently asked questions about this product",
       faq: {
         q1: "Is this figure authentic?",
         a1: "Yes, all figures at Figureforge are authentic and sourced from trusted global brands. Authenticity guarantee is included with every product.",

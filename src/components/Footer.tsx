@@ -104,7 +104,9 @@ export default async function Footer({ locale, dict }: { locale: Locale; dict: D
               <img
                 referrerPolicy="origin"
                 src="https://trustseal.enamad.ir/logo.aspx?id=773536&Code=VQhpOQtj5t7Y8nhGy6ZjSmSGVE1QBj1f"
-                alt=""
+                alt="Enamad Trust Seal"
+                width={120}
+                height={50}
                 style={{ cursor: "pointer" }}
                 className="h-20 w-auto"
                 {...{ code: "VQhpOQtj5t7Y8nhGy6ZjSmSGVE1QBj1f" } as ImgHTMLAttributes<HTMLImageElement>}
