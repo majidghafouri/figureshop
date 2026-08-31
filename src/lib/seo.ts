@@ -218,6 +218,14 @@ export function buildProductJsonLd(opts: {
     ratingValue: number;
     reviewCount: number;
   };
+  review?: {
+    "@type": "Review";
+    author: { "@type": "Person"; name: string };
+    datePublished: string;
+    reviewBody: string;
+    reviewRating: { "@type": "Rating"; ratingValue: number; bestRating?: number; worstRating?: number };
+    itemReviewed: { "@type": "Product"; name: string };
+  }[];
   locale?: Locale;
 }): string {
   const product: Record<string, unknown> = {
@@ -246,6 +254,9 @@ export function buildProductJsonLd(opts: {
       ratingValue: opts.aggregateRating.ratingValue,
       reviewCount: opts.aggregateRating.reviewCount,
     };
+  }
+  if (opts.review && opts.review.length > 0) {
+    product.review = opts.review;
   }
   return JSON.stringify(product);
 }
