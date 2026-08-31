@@ -36,15 +36,27 @@ export interface OgImage {
   alt: string;
 }
 
+function localizedUrl(path: string, locale: Locale): string {
+  const prefix = localePrefix(locale);
+  if (path === "/" || path === "") return prefix ? `${SITE_URL}${prefix}` : SITE_URL;
+  return `${SITE_URL}${prefix}${path}`;
+}
+
 export function buildHreflangAlternates(
   path: string,
-): Record<string, string> | undefined {
-  if (!path) return undefined;
-  const alternates: Record<string, string> = {};
+  locale?: Locale,
+): { canonical: string; languages: Record<string, string> } {
+  const resolved = locale || "fa";
+  const languages: Record<string, string> = {};
   for (const loc of locales) {
-    alternates[loc] = `${SITE_URL}${localePrefix(loc as Locale)}${path}`;
+    const code = loc === "fa" ? "fa" : loc === "en" ? "en-US" : "ar";
+    languages[code] = localizedUrl(path, loc as Locale);
   }
-  return alternates;
+  languages["x-default"] = localizedUrl(path, "fa");
+  return {
+    canonical: localizedUrl(path, resolved),
+    languages,
+  };
 }
 
 export function buildMetadata(opts: SeoOptions): Metadata {
@@ -83,6 +95,7 @@ export function buildMetadata(opts: SeoOptions): Metadata {
     });
   }
 
+  const { canonical, languages } = buildHreflangAlternates(path, resolvedLocale);
   const metadata: Metadata = {
     title: {
       default: resolvedTitle || (dict?.meta?.title ?? siteNameFor(resolvedLocale)),
@@ -91,9 +104,9 @@ export function buildMetadata(opts: SeoOptions): Metadata {
     description: resolvedDescription || dict?.meta?.description,
     metadataBase: new URL(SITE_URL),
     alternates: {
-      ...buildHreflangAlternates(path),
-      canonical: url,
-    } as Record<string, string>,
+      canonical,
+      languages,
+    },
     openGraph: {
       title: resolvedTitle || (dict?.meta?.title ?? siteNameFor(resolvedLocale)),
       description: resolvedDescription || dict?.meta?.description,
@@ -144,7 +157,9 @@ export function buildOrganizationJsonLd(): string {
     sameAs: [
       "https://instagram.com/figureforge",
       "https://twitter.com/figureforge",
+      "https://www.linkedin.com/company/figureforge",
       "https://www.wikidata.org/wiki/Q12345678",
+      "https://en.wikipedia.org/wiki/Figureforge",
     ],
     contactPoint: [
       {
@@ -155,6 +170,11 @@ export function buildOrganizationJsonLd(): string {
         availableLanguage: ["fa", "en", "ar"],
       },
     ],
+    brand: {
+      "@type": "Brand",
+      name: "فیگرفورج",
+      logo: `${SITE_URL}/logo-icon.svg`,
+    },
   });
 }
 

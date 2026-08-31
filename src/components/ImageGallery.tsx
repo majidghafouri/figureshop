@@ -17,6 +17,8 @@ export default function ImageGallery({ images, name }: { images: string[]; name:
             fill
             sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 40vw"
             priority
+            width={800}
+            height={800}
             className="object-cover"
           />
         ) : (
@@ -36,7 +38,7 @@ export default function ImageGallery({ images, name }: { images: string[]; name:
                 i === active ? "border-[var(--primary)] shadow-[0_8px_20px_rgba(var(--primary-rgb),0.25)]" : "border-[var(--line)] hover:border-[var(--line-strong)]"
               }`}
             >
-              <Image src={img} alt={name} fill sizes="76px" className="object-cover" />
+              <Image src={img} alt={name} fill sizes="76px" width={76} height={76} className="object-cover" />
             </button>
           ))}
         </div>

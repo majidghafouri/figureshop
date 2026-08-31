@@ -132,8 +132,7 @@ export default async function HomePage({
               className="anim-fade-up mt-5 text-[clamp(38px,5.6vw,64px)] max-sm:text-[clamp(32px,10.5vw,46px)] leading-[1.18] tracking-[-1.8px] font-[1000] text-[var(--text)]"
               style={{ animationDelay: "0.04s" }}
             >
-              {dict.hero.titleStart}
-              <span
+              فیگرفورج: دنیای <span
                 className="inline"
                 style={{
                   background: "linear-gradient(135deg,var(--text),var(--primary))",
@@ -144,7 +143,7 @@ export default async function HomePage({
               >
                 {dict.hero.titleHighlight}
               </span>
-              {dict.hero.titleEnd}
+              را بساز
             </h1>
 
             {/* stat bar */}
@@ -452,7 +451,7 @@ export default async function HomePage({
                           )}
                           {featured.sourceSiteName && featured.publishedAt && <span className="opacity-50">·</span>}
                           {featured.publishedAt && (
-                            <span>{formatDate(featured.publishedAt, locale)}</span>
+                            <time dateTime={featured.publishedAt.toISOString()}>{formatDate(featured.publishedAt, locale)}</time>
                           )}
                           {featured.publishedAt && featured.readingTime && <span className="opacity-50">·</span>}
                           {featured.readingTime && (

@@ -41,12 +41,17 @@ export default async function RootLayout({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#3454d1" />
+        <link rel="canonical" href={SITE_URL} />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/logo-icon.svg" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="dns-prefetch" href="https://trustseal.enamad.ir" />
         <link rel="preconnect" href="https://trustseal.enamad.ir" crossOrigin="anonymous" />
         <link rel="preconnect" href={SITE_URL} crossOrigin="anonymous" />
+        <link rel="preload" as="font" type="font/woff2" href="/_next/static/media/vazirmatn-latin-400-normal.woff2" crossOrigin="anonymous" />
+        <link rel="preload" as="font" type="font/woff2" href="/_next/static/media/vazirmatn-latin-500-normal.woff2" crossOrigin="anonymous" />
+        <link rel="preload" as="font" type="font/woff2" href="/_next/static/media/vazirmatn-latin-600-normal.woff2" crossOrigin="anonymous" />
+        <link rel="preload" as="font" type="font/woff2" href="/_next/static/media/vazirmatn-latin-700-normal.woff2" crossOrigin="anonymous" />
         <link rel="alternate" type="application/rss+xml" title="فیگرفورج | Figureforge" href="/rss.xml" />
         <script
           dangerouslySetInnerHTML={{

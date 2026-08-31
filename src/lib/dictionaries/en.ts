@@ -165,6 +165,16 @@ export const en: typeof fa = {
         purchaseRequired: "You can only comment on products you have purchased",
         maxReplies: "Maximum 5 replies reached",
       },
+      faq: {
+        q1: "Is this figure authentic?",
+        a1: "Yes, all figures at Figureforge are authentic and sourced from trusted global brands. Authenticity guarantee is included with every product.",
+        q2: "How can I verify the figure quality?",
+        a2: "We source from reputable global brands like Bandai, Good Smile Company, Kotobukiya, and other renowned manufacturers. All products come with original packaging and unique serial numbers.",
+        q3: "Is there a return policy?",
+        a3: "Yes, according to e-commerce law, you can return the product within 7 days of receipt without stating a reason, provided the original packaging is intact and the product is unopened.",
+        q4: "When will my order be shipped?",
+        a4: "Orders are shipped within 1-3 business days after payment confirmation, with secure shock-proof packaging. Tracking number will be sent via SMS.",
+      },
     },
   },
   brands: {

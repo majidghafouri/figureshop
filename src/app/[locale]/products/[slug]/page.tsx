@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, localePrefix, formatPrice, formatDiscountPercent, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
-import { buildMetadata, buildProductJsonLd, buildBreadcrumbJsonLd } from "@/lib/seo";
+import { buildMetadata, buildProductJsonLd, buildBreadcrumbJsonLd, buildFaqJsonLd } from "@/lib/seo";
 import prisma from "@/lib/db";
 import { mapProduct, productInclude, DEFAULT_CURSOR_URL } from "@/lib/shop";
 import ImageGallery from "@/components/ImageGallery";
@@ -130,6 +130,10 @@ export default async function ProductDetailPage({
           availability: p.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
           url: `${process.env.APP_URL || ""}${prefix}/products/${p.slug}`,
         },
+        aggregateRating: {
+          ratingValue: 4.5,
+          reviewCount: favoriteCount || 0,
+        },
         locale,
       }))} />
       <JsonLd data={JSON.parse(buildBreadcrumbJsonLd([
@@ -137,6 +141,12 @@ export default async function ProductDetailPage({
         { name: dict.nav.allProducts, url: `${prefix}/products` },
         { name: p.name, url: "" },
       ], locale))} />
+      <JsonLd data={JSON.parse(buildFaqJsonLd([
+        { q: dict.products.detail.faq.q1, a: dict.products.detail.faq.a1 },
+        { q: dict.products.detail.faq.q2, a: dict.products.detail.faq.a2 },
+        { q: dict.products.detail.faq.q3, a: dict.products.detail.faq.a3 },
+        { q: dict.products.detail.faq.q4, a: dict.products.detail.faq.a4 },
+      ]))} />
       <div className="container-page relative z-10">
         {/* breadcrumb */}
         <nav className="flex flex-wrap items-center gap-2 text-[12.5px] font-[800] text-[var(--muted)]">

@@ -97,6 +97,8 @@ export default function SpotlightCarousel({
                     fill
                     sizes="(max-width:640px) 80vw, (max-width:1024px) 50vw, 30vw"
                     priority={i === 0}
+                    width={600}
+                    height={600}
                     className="object-cover"
                   />
                 ) : null}
