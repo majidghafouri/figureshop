@@ -61,10 +61,12 @@ export default async function RootLayout({
         <style dangerouslySetInnerHTML={{ __html: paletteCss }} />
         <script
           type="application/ld+json"
+          defer
           dangerouslySetInnerHTML={{ __html: organizationJsonLd }}
         />
         <script
           type="application/ld+json"
+          defer
           dangerouslySetInnerHTML={{ __html: websiteJsonLd }}
         />
       </head>
