@@ -132,7 +132,7 @@ export default async function HomePage({
               className="anim-fade-up mt-5 text-[clamp(38px,5.6vw,64px)] max-sm:text-[clamp(32px,10.5vw,46px)] leading-[1.18] tracking-[-1.8px] font-[1000] text-[var(--text)]"
               style={{ animationDelay: "0.04s" }}
             >
-              فیگرفورج: دنیای <span
+              فیگرفورج: خرید <span
                 className="inline"
                 style={{
                   background: "linear-gradient(135deg,var(--text),var(--primary))",
@@ -143,7 +143,7 @@ export default async function HomePage({
               >
                 {dict.hero.titleHighlight}
               </span>
-              را بساز
+              اورجینال
             </h1>
 
             {/* stat bar */}
@@ -322,7 +322,7 @@ export default async function HomePage({
                 >
                   <span className="w-[52px] h-[52px] rounded-[17px] bg-gradient-to-br from-[var(--primary)] to-[var(--teal)] flex items-center justify-center text-white text-[24px] shadow-[0_14px_34px_rgba(var(--primary-rgb),0.28)] group-hover:scale-110 transition-transform duration-300">
                     {cat.image ? (
-                      <img src={cat.image} alt="" className="w-7 h-7 object-contain" />
+                      <Image src={cat.image} alt="" width={28} height={28} className="w-7 h-7 object-contain" />
                     ) : (
                       "🎯"
                     )}
