@@ -310,7 +310,9 @@ export default async function ProductDetailPage({
               </div>
             )}
 
-            {/* features */}
+            {/* AEO: question-headings */
+// TODO: Add H2/H3 headings phrased as questions (How to..., What is...)
+}
             {features.length > 0 && (
               <div className="mt-6 bg-[var(--surface)] border border-[var(--line)] rounded-[24px] p-5 shadow-[0_12px_36px_rgba(20,45,90,0.07)]">
                 <h2 className="font-[1000] text-[16px] text-[var(--text)]">{dict.products.detail.description}</h2>
