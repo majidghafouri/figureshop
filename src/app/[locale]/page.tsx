@@ -141,7 +141,7 @@ export default async function HomePage({
                   color: "transparent",
                 }}
               >
-                {dict.hero.titleHighlight} و اکشن فیگور
+                فیگور و اکشن فیگور
               </span>
               اورجینال
             </h1>

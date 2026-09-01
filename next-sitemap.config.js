@@ -34,6 +34,10 @@ module.exports = {
         disallow: ["/admin/", "/api/", "/docs"],
       },
     ],
+    additionalRobotsTxtRules: (rules) => {
+      const indexNowKey = process.env.INDEXNOW_KEY || "figureforge-indexnow-key";
+      return `${rules}\n# IndexNow\nIndexNow: https://www.bing.com/indexnow?url=${encodeURIComponent(`${process.env.APP_URL || "https://figureforge.ir"}/sitemap.xml`)}&key=${indexNowKey}`;
+    },
   },
   transform: async (config, path) => {
     const priority =
