@@ -52,6 +52,7 @@ export default async function RootLayout({
         <link rel="preload" as="font" type="font/woff2" href="/_next/static/media/vazirmatn-latin-600-normal.woff2" crossOrigin="anonymous" />
         <link rel="preload" as="font" type="font/woff2" href="/_next/static/media/vazirmatn-latin-700-normal.woff2" crossOrigin="anonymous" />
         <link rel="alternate" type="application/rss+xml" title="فیگرفورج | Figureforge" href="/rss.xml" />
+        <link rel="alternate" type="text/plain" title="LLM-friendly Markdown" href="/llms.txt" />
         <script
           defer
           dangerouslySetInnerHTML={{

@@ -138,6 +138,7 @@ export function buildMetadata(opts: SeoOptions): Metadata {
     metadata.robots = {
       index: true,
       follow: true,
+      "max-snippet": 200,
       "max-image-preview": "large",
     } as Metadata["robots"];
   }
@@ -154,6 +155,12 @@ export function buildOrganizationJsonLd(): string {
     logo: `${SITE_URL}/logo-icon.svg`,
     description: "فیگرفورج — فروشگاه تخصصی فیگور و اکشن فیگور اورجینال | Figureforge — Original Figure & Action Figure Store",
     areaServed: ["IR", "AE", "SA"],
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Tehran, Iran",
+      addressLocality: "Tehran",
+      addressCountry: "IR",
+    },
     sameAs: [
       "https://instagram.com/figureforge",
       "https://twitter.com/figureforge",

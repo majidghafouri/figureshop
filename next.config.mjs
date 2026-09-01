@@ -49,6 +49,49 @@ const nextConfig = {
         source: "/(.*)",
         headers: securityHeaders,
       },
+      {
+        source: "/_next/static/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/(robots.txt|sitemap.xml|llms.txt|rss.xml|security.txt|manifest.json|favicon.ico|logo-icon.svg|logo.svg)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      {
+        source: "/",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, s-maxage=600, stale-while-revalidate=300",
+          },
+        ],
+      },
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "header",
+            key: "user-agent",
+            value: "(.*GPTBot|.*OAI-SearchBot|.*ClaudeBot|.*perplexitybot|.*Google-Extended|.*CCBot|.*Bytespider|.*Amazonbot)(.*)",
+          },
+        ],
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=3600, s-maxage=3600, stale-while-revalidate=3600",
+          },
+        ],
+      },
     ];
   },
   webpack(config) {
