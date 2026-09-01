@@ -2,13 +2,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Locale, localePrefix, isLocale, formatDate } from "@/lib/i18n";
+import { Locale, localePrefix, isLocale, formatDate, locales } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import { buildMetadata, buildBreadcrumbJsonLd } from "@/lib/seo";
 import { getPublishedPosts } from "@/lib/blog";
 import Reveal from "@/components/Reveal";
 import JsonLd from "@/components/JsonLd";
-import { getSessionUser } from "@/lib/auth";
+import GuestOnly from "@/components/GuestOnly";
+
+export const revalidate = 600;
+
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
 
 export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
   const locale = isLocale(params.locale) ? (params.locale as Locale) : "fa";
@@ -28,7 +34,6 @@ export default async function BlogPage({ params }: { params: { locale: string } 
   const prefix = localePrefix(locale);
 
   const posts = await getPublishedPosts(locale, 50);
-  const sessionUser = await getSessionUser();
 
   return (
     <div className="relative overflow-hidden py-[40px] max-sm:py-[28px]"
@@ -123,7 +128,7 @@ export default async function BlogPage({ params }: { params: { locale: string } 
           )}
         </Reveal>
 
-        {!sessionUser && (
+        <GuestOnly>
           <div className="mt-12 text-center">
             <Link
               href={`${prefix}/products`}
@@ -133,7 +138,7 @@ export default async function BlogPage({ params }: { params: { locale: string } 
               {dict.cta.button}
             </Link>
           </div>
-        )}
+        </GuestOnly>
       </div>
     </div>
   );

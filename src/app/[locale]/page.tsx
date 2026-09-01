@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Metadata } from "next";
-import { Locale, localePrefix, isLocale, formatDate } from "@/lib/i18n";
+import { Locale, localePrefix, isLocale, formatDate, locales } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import { buildMetadata, buildBreadcrumbJsonLd } from "@/lib/seo";
 import prisma from "@/lib/db";
@@ -10,9 +10,15 @@ import Reveal from "@/components/Reveal";
 import ProductGrid from "@/components/ProductGrid";
 import SpotlightCarousel from "@/components/SpotlightCarousel";
 import JsonLd from "@/components/JsonLd";
+import GuestOnly from "@/components/GuestOnly";
 import { notFound } from "next/navigation";
-import { getSessionUser } from "@/lib/auth";
 import { blogPostInclude } from "@/lib/blog";
+
+export const revalidate = 600;
+
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
 
 export async function generateMetadata({
   params,
@@ -43,8 +49,6 @@ export default async function HomePage({
   const breadcrumbs = [
     { name: dict.nav.home, url: "" },
   ];
-
-  const user = await getSessionUser();
 
   const [featured, categories, rssPosts] = await Promise.all([
     prisma.product.findMany({
@@ -477,7 +481,7 @@ export default async function HomePage({
       )}
 
       {/* ================= CTA ================= */}
-      {!user && (
+      <GuestOnly>
         <section id="start" className="relative overflow-hidden py-[78px] max-sm:py-[58px] scroll-mt-[76px]"
         style={{
           background:
@@ -524,7 +528,7 @@ export default async function HomePage({
           </Reveal>
         </div>
         </section>
-      )}
+      </GuestOnly>
     </>
   );
 }

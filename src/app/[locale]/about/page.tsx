@@ -1,11 +1,17 @@
 import { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Locale, localePrefix, isLocale } from "@/lib/i18n";
+import { Locale, localePrefix, isLocale, locales } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import { buildMetadata, buildBreadcrumbJsonLd } from "@/lib/seo";
 import Reveal from "@/components/Reveal";
 import JsonLd from "@/components/JsonLd";
+
+export const revalidate = 600;
+
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
 
 export async function generateMetadata({
   params,
