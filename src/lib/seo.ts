@@ -234,6 +234,8 @@ export function buildProductJsonLd(opts: {
     itemReviewed: { "@type": "Product"; name: string };
   }[];
   locale?: Locale;
+  // Additional fields for AI parsing
+  specifications?: Record<string, string>;
 }): string {
   const product: Record<string, unknown> = {
     "@context": "https://schema.org/",
@@ -264,6 +266,10 @@ export function buildProductJsonLd(opts: {
   }
   if (opts.review && opts.review.length > 0) {
     product.review = opts.review;
+  }
+  // Add specifications if provided
+  if (opts.specifications && Object.keys(opts.specifications).length > 0) {
+    product.specifications = opts.specifications;
   }
   return JSON.stringify(product);
 }
