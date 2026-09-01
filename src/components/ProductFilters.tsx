@@ -101,7 +101,7 @@ export default function ProductFilters({
 
       {/* brands */}
       <div className="mt-5">
-        <h4 className="text-[12.5px] font-[950] text-[var(--text-2)]">{dict.products.filters.brand}</h4>
+        <div className="text-[12.5px] font-[950] text-[var(--text-2)]">{dict.products.filters.brand}</div>
         <div className="mt-2.5 space-y-1.5 max-h-[240px] overflow-y-auto no-scrollbar pr-1">
           {brands.map((b) => {
             const checked = selectedBrands.includes(b.brand);
@@ -130,7 +130,7 @@ export default function ProductFilters({
 
       {/* price */}
       <div className="mt-5">
-        <h4 className="text-[12.5px] font-[950] text-[var(--text-2)]">{dict.products.filters.price}</h4>
+        <div className="text-[12.5px] font-[950] text-[var(--text-2)]">{dict.products.filters.price}</div>
         <div className="mt-2.5 flex items-center gap-2">
           <input
             value={min}
@@ -182,7 +182,7 @@ export default function ProductFilters({
 
       {/* sort (mobile only) */}
       <div className="mt-5 lg:hidden">
-        <h4 className="text-[12.5px] font-[950] text-[var(--text-2)]">{dict.products.sort.label}</h4>
+        <div className="text-[12.5px] font-[950] text-[var(--text-2)]">{dict.products.sort.label}</div>
         <select
           value={sort}
           onChange={(e) => push(buildParams({ sort: e.target.value }))}

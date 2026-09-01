@@ -21,6 +21,7 @@ export default function JsonLd({ data }: JsonLdProps) {
   return (
     <script
       type="application/ld+json"
+      defer
       dangerouslySetInnerHTML={{ __html: escapeJsonLd(data) }}
     />
   );

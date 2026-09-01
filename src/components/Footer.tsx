@@ -51,9 +51,9 @@ export default async function Footer({ locale, dict }: { locale: Locale; dict: D
           {/* Link columns */}
           {(["shop", "help", "contact"] as const).map((col) => (
             <div key={col}>
-              <h4 className="text-[var(--text)] font-[950] text-[16px] mb-3">
+              <div className="text-[var(--text)] font-[950] text-[16px] mb-3">
                 {dict.footer.columns[col]}
-              </h4>
+              </div>
               <ul className="space-y-2.5">
                 {dict.footer.links[col].map((link) => (
                   <li key={link.label}>

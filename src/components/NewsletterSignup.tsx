@@ -71,7 +71,7 @@ export default function NewsletterSignup({
           "radial-gradient(circle at 88% 0%, rgba(var(--teal-rgb),0.14), transparent 46%), var(--surface)",
       }}
     >
-      <h3 className="text-[16px] font-[1000] text-[var(--text)]">📬 {dict.title}</h3>
+      <div className="text-[16px] font-[1000] text-[var(--text)]">📬 {dict.title}</div>
       <p className="mt-1 text-[13px] font-[700] leading-[1.8] text-[var(--muted-5)]">
         {dict.subtitle}
       </p>
