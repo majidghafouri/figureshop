@@ -51,6 +51,19 @@ const nextConfig = {
       },
     ];
   },
+  webpack(config) {
+    config.plugins = config.plugins.filter(
+      (plugin) =>
+        !(
+          plugin &&
+          plugin.constructor &&
+          plugin.constructor.name === "CopyFilePlugin" &&
+          typeof plugin.filePath === "string" &&
+          plugin.filePath.includes("polyfill-nomodule")
+        )
+    );
+    return config;
+  },
 };
 
 export default nextConfig;
