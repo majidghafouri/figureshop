@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import "@/app/globals.css";
 import "@fontsource/vazirmatn/300.css";
 import "@fontsource/vazirmatn/400.css";
@@ -7,18 +6,15 @@ import "@fontsource/vazirmatn/600.css";
 import "@fontsource/vazirmatn/700.css";
 import "@fontsource/vazirmatn/800.css";
 import "@fontsource/vazirmatn/900.css";
-import { isLocale, getDir, defaultLocale } from "@/lib/i18n";
+import { getDir, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import { getSiteTheme, buildThemeStyle, DEFAULT_PALETTE } from "@/lib/siteTheme";
 import { buildMetadata, buildOrganizationJsonLd, buildWebsiteJsonLd, SITE_URL } from "@/lib/seo";
 import LocaleDirection from "@/components/LocaleDirection";
 
 export async function generateMetadata() {
-  const store = cookies();
-  const locale = store.get("locale")?.value;
-  const resolved = isLocale(locale) ? locale : defaultLocale;
-  const dict = getDictionary(resolved);
-  return buildMetadata({ dict, locale: resolved });
+  const dict = getDictionary(defaultLocale);
+  return buildMetadata({ dict, locale: defaultLocale });
 }
 
 export default async function RootLayout({
@@ -26,17 +22,14 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const store = cookies();
-  const locale = store.get("locale")?.value;
-  const resolved = isLocale(locale) ? locale : "fa";
-  const dir = getDir(resolved);
+  const dir = getDir(defaultLocale);
   const palette = (await getSiteTheme()) ?? DEFAULT_PALETTE;
   const paletteCss = buildThemeStyle(palette);
   const organizationJsonLd = buildOrganizationJsonLd();
   const websiteJsonLd = buildWebsiteJsonLd();
 
   return (
-    <html lang={resolved === "fa" ? "fa-IR" : resolved} dir={dir}>
+    <html lang={defaultLocale === "fa" ? "fa-IR" : defaultLocale} dir={dir}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
