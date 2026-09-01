@@ -170,7 +170,7 @@ export default async function CategoryPage({
             {result.products.length === 0 ? (
               <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[28px] p-14 text-center">
                 <div className="text-[44px]">🔍</div>
-                <h3 className="mt-3 text-[17px] font-[1000] text-[var(--text)]">{dict.products.filters.noResults}</h3>
+                <h2 className="mt-3 text-[17px] font-[1000] text-[var(--text)]">{dict.products.filters.noResults}</h2>
                 <p className="mt-1.5 text-[13.5px] font-[750] text-[var(--muted)]">{dict.products.filters.noResultsDesc}</p>
               </div>
             ) : (

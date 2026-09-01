@@ -82,6 +82,9 @@ export default async function AboutPage({ params }: { params: { locale: string }
 
         <div className="mt-12">
           <Reveal>
+            <h2 className="text-[clamp(22px,2.5vw,28px)] font-[1000] text-[var(--text)] mb-6">
+              {dict.about.valuesTitle || "مقتضیات ما"}
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {dict.about.values.map((v) => (
                 <div key={v.title} className="bg-[var(--surface)] border border-[var(--line)] rounded-[24px] p-6 text-center hover:shadow-[0_18px_48px_rgba(20,45,90,0.10)] hover:-translate-y-1 transition-all duration-300">

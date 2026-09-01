@@ -28,9 +28,9 @@ export default async function BlogPage({ params }: { params: { locale: string } 
   const prefix = localePrefix(locale);
 
   const posts = await getPublishedPosts(locale, 50);
-  const user = await getSessionUser();
+  const sessionUser = await getSessionUser();
 
-   return (
+  return (
     <div className="relative overflow-hidden py-[40px] max-sm:py-[28px]"
       style={{
         background:
@@ -96,9 +96,9 @@ export default async function BlogPage({ params }: { params: { locale: string } 
                           </span>
                         ) : null}
                       </div>
-                      <h3 className="mt-3 text-[16.5px] leading-[1.7] font-[1000] text-[var(--text)] group-hover:text-[var(--primary)] transition-colors line-clamp-2">
+                      <h2 className="mt-3 text-[16.5px] leading-[1.7] font-[1000] text-[var(--text)] group-hover:text-[var(--primary)] transition-colors line-clamp-2">
                         {post.title}
-                      </h3>
+                      </h2>
                       {post.excerpt && (
                         <p className="mt-2 text-[13.5px] leading-[1.9] font-[750] text-[var(--muted)] line-clamp-2">
                           {post.excerpt}
@@ -123,7 +123,7 @@ export default async function BlogPage({ params }: { params: { locale: string } 
           )}
         </Reveal>
 
-        {!user && (
+        {!sessionUser && (
           <div className="mt-12 text-center">
             <Link
               href={`${prefix}/products`}

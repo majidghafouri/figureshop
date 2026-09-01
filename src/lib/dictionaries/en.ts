@@ -704,6 +704,7 @@ export const en: typeof fa = {
     title: "Figureforge; specialized figure shop",
     p1: "Figureforge was founded to give Iranian collectors and fans access to original figures from around the world. We believe every figure tells a story.",
     p2: "All of our products are sourced from reputable brands and their authenticity is guaranteed. We are by your side from selection to delivery.",
+    valuesTitle: "Our Values",
     values: [
       { icon: "🎯", title: "Focus on quality", desc: "Only original, high-quality products" },
       { icon: "🤝", title: "Customer trust", desc: "Transparency in price and conditions" },
