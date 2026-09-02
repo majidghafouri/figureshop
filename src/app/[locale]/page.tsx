@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Metadata } from "next";
 import { Locale, localePrefix, isLocale, formatDate, locales } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
-import { buildMetadata, buildBreadcrumbJsonLd } from "@/lib/seo";
+import { buildMetadata, buildBreadcrumbJsonLd, buildOrganizationJsonLd, buildWebsiteJsonLd, SITE_URL } from "@/lib/seo";
 import prisma from "@/lib/db";
 import { mapProduct, productInclude } from "@/lib/shop";
 import Reveal from "@/components/Reveal";
@@ -11,6 +11,7 @@ import ProductGrid from "@/components/ProductGrid";
 import SpotlightCarousel from "@/components/SpotlightCarousel";
 import JsonLd from "@/components/JsonLd";
 import GuestOnly from "@/components/GuestOnly";
+import GeoGuide from "@/components/GeoGuide";
 import { notFound } from "next/navigation";
 import { blogPostInclude } from "@/lib/blog";
 
@@ -34,6 +35,7 @@ export async function generateMetadata({
     path: prefix || "/",
     title: dict.meta.title,
     description: dict.meta.description,
+    authors: ["Figureforge"],
   });
 }
 
@@ -87,7 +89,24 @@ export default async function HomePage({
   return (
     <>
       <JsonLd data={JSON.parse(buildBreadcrumbJsonLd(breadcrumbs, locale))} />
-      {/* ================= HERO ================= */}
+      <JsonLd data={JSON.parse(buildOrganizationJsonLd())} />
+      <JsonLd data={JSON.parse(buildWebsiteJsonLd())} />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: dict.homeGeo.title,
+          description: dict.homeGeo.description,
+          url: SITE_URL,
+          inLanguage: locale === "fa" ? "fa" : locale === "ar" ? "ar" : "en",
+          dateModified: new Date().toISOString(),
+          about: { "@type": "Thing", name: dict.homeGeo.title },
+          author: {
+            "@type": "Organization",
+            name: "فیگرفورج | Figureforge",
+          },
+        }}
+      />
       <section
         id="home"
         className="relative isolate overflow-hidden py-[64px] max-sm:py-[44px] min-h-[calc(100vh-76px)] scroll-mt-[76px] flex items-center"
@@ -136,7 +155,7 @@ export default async function HomePage({
               className="anim-fade-up mt-5 text-[clamp(38px,5.6vw,64px)] max-sm:text-[clamp(32px,10.5vw,46px)] leading-[1.18] tracking-[-1.8px] font-[1000] text-[var(--text)]"
               style={{ animationDelay: "0.04s" }}
             >
-              فیگرفورج: خرید <span
+              {dict.hero.titleStart} <span
                 className="inline"
                 style={{
                   background: "linear-gradient(135deg,var(--text),var(--primary))",
@@ -145,9 +164,9 @@ export default async function HomePage({
                   color: "transparent",
                 }}
               >
-                فیگور و اکشن فیگور
-              </span>
-              اورجینال
+                {dict.hero.titleHighlight}
+              </span>{" "}
+              {dict.hero.titleEnd}
             </h1>
 
             {/* stat bar */}
@@ -479,6 +498,9 @@ export default async function HomePage({
           </div>
         </section>
       )}
+
+      {/* ================= COLLECTORS GUIDE (GEO) ================= */}
+      <GeoGuide dict={dict} />
 
       {/* ================= CTA ================= */}
       <GuestOnly>

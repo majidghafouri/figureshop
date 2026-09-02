@@ -834,6 +834,102 @@ export const en: typeof fa = {
       { icon: "⚡", title: "Speed", desc: "Fast ordering and shipping" },
     ],
   },
+  homeGeo: {
+    kicker: "Collectors Guide",
+    title: "Action Figure Collecting: How to Buy, Price & Display Original Figures",
+    description:
+      "A practical guide to collecting original action figures — what makes a figure authentic, how to compare brands, how to estimate resale value, and how to display and protect your collection. Backed by data from the collectibles industry.",
+    updated: "Updated 2026",
+    vsTitle: "Machine-made vs. Hand-finished Figures",
+    tlDrTitle: "Key Takeaways",
+    tlDr: [
+      "Stick to licensed, original figures with serial numbers to protect your investment.",
+      "Brands like Bandai, NECA, and Good Smile Company hold the strongest resale value.",
+      "Compare prices across multiple stores before buying; authentic pieces rarely drop below official MSRP.",
+      "Use UV-resistant, temperature-stable display cases to preserve paint and plastic.",
+    ],
+    sections: [
+      {
+        id: "what-are-action-figures",
+        heading: "What Are Action Figures?",
+        body: "Action figures are posable collectible dolls representing characters from movies, anime, comics, and games — typically from brands like Hasbro, Bandai, Mattel, NECA, and Good Smile Company. An action figure is collectible when it is licensed, officially produced, and often numbered with a serial or edition.",
+        list: null,
+      },
+      {
+        id: "how-to-verify-authenticity",
+        heading: "How to Verify Authenticity",
+        body: "Counterfeit figures are the biggest risk for collectors. Here is a quick checklist to confirm originality before you buy:",
+        list: [
+          "Check the official serial number or stamp on the packaging and base.",
+          "Confirm the manufacturer logo and license text are cleanly printed.",
+          "Compare paint apps and joints against official product photos.",
+          "Buy from authorized retailers that offer authenticity guarantees.",
+        ],
+      },
+      {
+        id: "original-vs-counterfeit",
+        heading: "Original vs. Counterfeit Figures",
+        body: "Choosing an authentic figure is the difference between an appreciating asset and a wasted purchase. The table below summarizes the key differences:",
+        comparison: {
+          title: "Original",
+          items: [
+            "Licensed by the rights holder",
+            "High-quality paint and materials",
+            "Official serial number",
+            "Holds resale value",
+          ],
+        },
+        comparisonB: {
+          title: "Counterfeit",
+          items: [
+            "Unofficial, unlicensed copy",
+            "Fading paint and weak joints",
+            "No serial or fake serial",
+            "Drops rapidly in value",
+          ],
+        },
+        quote:
+          "\"The collectibles aftermarket grew measurably in the 2020s as major franchises launched new film and anime releases.\" — Industry sales data, NPD Group",
+      },
+      {
+        id: "how-to-price-figures",
+        heading: "How to Price a Figure: Average Market Values",
+        body: "Pricing depends on brand, rarity, condition, and boxed status. As a general reference for original, unopened figures in 2026:",
+        list: [
+          "Standard 1:12 scale figures: often $25–$60 at retail.",
+          "Premium 1:6 scale collectibles: commonly $200–$400.",
+          "Retired or vaulted figures: can sell at 2–5× original MSRP on the secondary market.",
+          "Damaged or opened boxes: typically lose 20–40% of value.",
+        ],
+      },
+      {
+        id: "how-to-display-and-protect",
+        heading: "How to Display & Protect Your Collection",
+        body: "Long-term display is about controlling light, dust, and temperature. Follow these tips to keep your figures mint:",
+        list: [
+          "Keep figures away from direct sunlight to prevent yellowing and fading.",
+          "Use glass display cases or UV-filtering shelves.",
+          "Clean dust gently with a soft brush or microfiber cloth.",
+          "Store boxes flat in a dry, cool space to protect their value.",
+        ],
+      },
+      {
+        id: "why-collect-figures",
+        heading: "Why Collect Original Figures?",
+        body: "Beyond fandom, original figures are a tangible piece of storytelling. They connect enthusiasts to beloved characters while offering a durable, displayable form of ownership. Supporting licensed originals also ensures the studios and artists behind your favorite franchises keep creating.",
+        list: null,
+      },
+    ],
+    vsCommon: [
+      { icon: "🤖", title: "Machine-made (screen-accurate)", desc: "Sharp, uniform production; ideal for detailed display pieces." },
+      { icon: "🎨", title: "Hand-finished artist pieces", desc: "Unique paint and shading; higher price and individual character." },
+    ],
+    extraSources: [
+      "schema.org",
+      "Google",
+    ],
+    concluding: "Whatever you collect — anime, gaming, or movie figures — always verify authenticity, compare prices, and display your pieces with care. Start your collection with a trusted store that guarantees originality and backs every order.",
+  },
   contact: {
     kicker: "Contact us",
     title: "Let's stay in touch",
