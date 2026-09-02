@@ -94,6 +94,7 @@ export default function SpotlightCarousel({
                   <Image
                     src={product.images[0]}
                     alt={product.name}
+                    title={product.name}
                     fill
                     sizes="(max-width:640px) 80vw, (max-width:1024px) 50vw, 30vw"
                     priority={i === 0}

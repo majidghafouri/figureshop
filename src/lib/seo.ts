@@ -38,8 +38,15 @@ export interface OgImage {
 
 function localizedUrl(path: string, locale: Locale): string {
   const prefix = localePrefix(locale);
-  if (path === "/" || path === "") return prefix ? `${SITE_URL}${prefix}` : SITE_URL;
-  return `${SITE_URL}${prefix}${path}`;
+  let cleanPath = path.startsWith("/") ? path.slice(1) : path;
+  // Strip existing locale prefix if path already contains one
+  if (cleanPath && locales.includes(cleanPath as Locale)) {
+    cleanPath = "/";
+  }
+  // Handle cleanPath of "/" - treat as root path
+  if (cleanPath === "/") return prefix ? `${SITE_URL}${prefix}` : SITE_URL;
+  if (cleanPath === "") return prefix ? `${SITE_URL}${prefix}` : SITE_URL;
+  return `${SITE_URL}${prefix}${cleanPath}`;
 }
 
 export function buildHreflangAlternates(
@@ -47,14 +54,19 @@ export function buildHreflangAlternates(
   locale?: Locale,
 ): { canonical: string; languages: Record<string, string> } {
   const resolved = locale || "fa";
+  // Strip locale prefix from path if present (e.g., /en -> /)
+  let cleanPath = path.startsWith("/") ? path.slice(1) : path;
+  if (cleanPath && locales.includes(cleanPath as Locale)) {
+    cleanPath = "/";
+  }
   const languages: Record<string, string> = {};
   for (const loc of locales) {
     const code = loc === "fa" ? "fa" : loc === "en" ? "en-US" : "ar";
-    languages[code] = localizedUrl(path, loc as Locale);
+    languages[code] = localizedUrl(cleanPath, loc as Locale);
   }
-  languages["x-default"] = localizedUrl(path, "fa");
+  languages["x-default"] = localizedUrl(cleanPath, "fa");
   return {
-    canonical: localizedUrl(path, resolved),
+    canonical: localizedUrl(cleanPath, resolved),
     languages,
   };
 }
