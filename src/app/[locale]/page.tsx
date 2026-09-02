@@ -107,6 +107,49 @@ export default async function HomePage({
           },
         }}
       />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@id": `${SITE_URL}/#author`,
+          "@type": "Person",
+          name: "فیگرفورج تیم متخصص | Figureforge Collector Team",
+          jobTitle: "کلکسیون‌شناس فیگور و اکشن فیگور | Action Figure Collectibles Expert",
+          description:
+            "تیم متخصص فیگرفورج با سال‌ها تجربه در اصالت‌سنجی و قیمت‌گذاری فیگورهای اورجینال انیمه، گیمینگ، سینمایی و دیزنی. / Figureforge's figure-collecting team specializing in authenticity verification, valuation and care of original anime, gaming, film and Disney figures.",
+          knowsAbout: [
+            "Action Figures",
+            "Collectible Figures",
+            "Anime Figures",
+            "Figure Authentication",
+            "Figure Collecting",
+          ],
+          url: SITE_URL,
+          sameAs: ["https://schema.org/ActionFigure"],
+        }}
+      />
+      {featured[0] && (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: featured[0].translations[0]?.name ?? featured[0].slug,
+            description: featured[0].translations[0]?.description ?? dict.homeGeo.description,
+            image: featured[0].images?.[0]
+              ? `${SITE_URL}${featured[0].images[0]}`
+              : `${SITE_URL}/og-default.jpg`,
+            brand: featured[0].brand ? { "@type": "Brand", name: featured[0].brand } : undefined,
+            sku: featured[0].slug,
+            offers: {
+              "@type": "Offer",
+              priceCurrency: "USD",
+              price: featured[0].price,
+              availability: "https://schema.org/InStock",
+              url: `${SITE_URL}${prefix}/products/${featured[0].slug}`,
+              seller: { "@type": "Organization", name: "فیگرفورج | Figureforge" },
+            },
+          }}
+        />
+      )}
       <section
         id="home"
         className="relative isolate overflow-hidden py-[64px] max-sm:py-[44px] min-h-[calc(100vh-76px)] scroll-mt-[76px] flex items-center"

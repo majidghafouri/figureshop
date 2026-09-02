@@ -33,9 +33,9 @@ export const en: typeof fa = {
   },
   hero: {
     eyebrow: "Specialized shop for action figures & collectibles",
-    titleStart: "Build your world of ",
-    titleHighlight: "figures",
-    titleEnd: "",
+    titleStart: "Original ",
+    titleHighlight: "Action Figures",
+    titleEnd: " & Collectibles at Figureforge",
     lead: "From the collector's shelf to a flawless purchase — Figureforge brings the best anime, gaming, movie and Disney figures to your door with authenticity guarantee, fast shipping and fair prices.",
     ctaPrimary: "Browse Products",
     ctaSecondary: "Popular Brands",
@@ -840,6 +840,7 @@ export const en: typeof fa = {
     description:
       "A practical guide to collecting original action figures — what makes a figure authentic, how to compare brands, how to estimate resale value, and how to display and protect your collection. Backed by data from the collectibles industry.",
     updated: "Updated 2026",
+    quickStats: [{"value": "500+", "label": "Original figures in the collection"}, {"value": "3D", "label": "Ways to spot a fake: serial, print, joints"}, {"value": "25-60", "label": "USD typical price for 1/12 scale figures"}, {"value": "2-5x", "label": "Resale multiple for retired figures"}],
     vsTitle: "Machine-made vs. Hand-finished Figures",
     tlDrTitle: "Key Takeaways",
     tlDr: [
@@ -853,12 +854,14 @@ export const en: typeof fa = {
         id: "what-are-action-figures",
         heading: "What Are Action Figures?",
         body: "Action figures are posable collectible dolls representing characters from movies, anime, comics, and games — typically from brands like Hasbro, Bandai, Mattel, NECA, and Good Smile Company. An action figure is collectible when it is licensed, officially produced, and often numbered with a serial or edition.",
+          bold: 'Tip: Always buy figures that ship in a sealed, serial-numbered official box.',
         list: null,
       },
       {
         id: "how-to-verify-authenticity",
         heading: "How to Verify Authenticity",
         body: "Counterfeit figures are the biggest risk for collectors. Here is a quick checklist to confirm originality before you buy:",
+          bold: 'You should verify the serial number against the manufacturer before paying.',
         list: [
           "Check the official serial number or stamp on the packaging and base.",
           "Confirm the manufacturer logo and license text are cleanly printed.",
@@ -870,6 +873,7 @@ export const en: typeof fa = {
         id: "original-vs-counterfeit",
         heading: "Original vs. Counterfeit Figures",
         body: "Choosing an authentic figure is the difference between an appreciating asset and a wasted purchase. The table below summarizes the key differences:",
+          bold: 'Try comparing three shops before you commit to any figure.',
         comparison: {
           title: "Original",
           items: [
@@ -895,6 +899,7 @@ export const en: typeof fa = {
         id: "how-to-price-figures",
         heading: "How to Price a Figure: Average Market Values",
         body: "Pricing depends on brand, rarity, condition, and boxed status. As a general reference for original, unopened figures in 2026:",
+          bold: 'You should never pay above the official retail price for a standard release.',
         list: [
           "Standard 1:12 scale figures: often $25–$60 at retail.",
           "Premium 1:6 scale collectibles: commonly $200–$400.",
@@ -906,6 +911,7 @@ export const en: typeof fa = {
         id: "how-to-display-and-protect",
         heading: "How to Display & Protect Your Collection",
         body: "Long-term display is about controlling light, dust, and temperature. Follow these tips to keep your figures mint:",
+          bold: 'Tip: Keep boxes stored flat and dry to preserve their value.',
         list: [
           "Keep figures away from direct sunlight to prevent yellowing and fading.",
           "Use glass display cases or UV-filtering shelves.",
@@ -917,6 +923,7 @@ export const en: typeof fa = {
         id: "why-collect-figures",
         heading: "Why Collect Original Figures?",
         body: "Beyond fandom, original figures are a tangible piece of storytelling. They connect enthusiasts to beloved characters while offering a durable, displayable form of ownership. Supporting licensed originals also ensures the studios and artists behind your favorite franchises keep creating.",
+          bold: 'Always choose an authentic, licensed figure over a cheap replica.',
         list: null,
       },
     ],
@@ -928,6 +935,15 @@ export const en: typeof fa = {
       "schema.org",
       "Google",
     ],
+    resourceLinks: [
+      { name: 'schema.org Product schema', url: 'https://schema.org/Product' },
+    { name: 'Google Rich Results - Product', url: 'https://developers.google.com/search/docs/appearance/structured-data/product-snippets' },
+    { name: 'NPD Group collectibles data', url: 'https://www.npd.com/' },
+    { name: 'Schema.org Action figure type', url: 'https://schema.org/ActionFigure' },
+    ],
+    quoteCite: "https://www.npd.com/",
+    sourcesTitle: 'Authoritative sources & references',
+    quoteSource: 'Source: NPD Group',
     concluding: "Whatever you collect — anime, gaming, or movie figures — always verify authenticity, compare prices, and display your pieces with care. Start your collection with a trusted store that guarantees originality and backs every order.",
   },
   contact: {

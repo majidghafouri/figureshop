@@ -40,13 +40,40 @@ export default function GeoGuide({ dict }: { dict: Dictionary }) {
           </div>
         </Reveal>
 
+        {/* Data points / stats */}
+        {geo.quickStats && geo.quickStats.length > 0 && (
+          <Reveal>
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+              {geo.quickStats.map((stat, i) => (
+                <div
+                  key={i}
+                  className="rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-5 text-center shadow-[0_10px_30px_rgba(20,45,90,0.06)]"
+                >
+                  <div className="text-[clamp(20px,2.4vw,30px)] font-[1000] text-[var(--primary)] leading-none">
+                    {stat.value}
+                  </div>
+                  <div className="mt-2 text-[12px] font-[800] text-[var(--muted)] leading-[1.6]">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        )}
+
         {/* Sections */}
         <div className="mt-8 space-y-5">
           {geo.sections.map((s, i) => (
             <Reveal key={s.id} delay={i % 2 ? 60 : 0}>
               <div id={s.id} className="scroll-mt-[100px] rounded-[28px] border border-[var(--line)] bg-[var(--surface)] p-6 md:p-7 hover:shadow-[0_18px_48px_rgba(20,45,90,0.10)] transition-all duration-300">
-                <h3 className="text-[19px] font-[1000] text-[var(--text)]">{s.heading}</h3>
-                <p className="mt-3 text-[14px] leading-[2] font-[700] text-[var(--text-2)]">{s.body}</p>
+                <h2 className="text-[19px] font-[1000] text-[var(--text)]">{s.heading}</h2>
+                <p className="mt-3 text-[14px] leading-[2] font-[700] text-[var(--text-2)]">
+                  {s.bold ? (
+                    <>
+                      {s.body} <strong className="text-[var(--text)] font-[950]">{s.bold}</strong>
+                    </>
+                  ) : (
+                    s.body
+                  )}
+                </p>
 
                 {s.comparison && s.comparisonB && (
                   <figure className="mt-5">
@@ -75,9 +102,16 @@ export default function GeoGuide({ dict }: { dict: Dictionary }) {
                 )}
 
                 {s.quote && (
-                  <blockquote className="mt-5 rounded-[16px] border-r-4 border-[var(--teal)] bg-[var(--glass-tint)] p-4 text-[13.5px] font-[700] text-[var(--text-3)] italic leading-[1.9]">
-                    {s.quote}
-                  </blockquote>
+                  <figure className="mt-5">
+                    <blockquote cite={geo.quoteCite} className="rounded-[16px] border-r-4 border-[var(--teal)] bg-[var(--glass-tint)] p-4 text-[13.5px] font-[700] text-[var(--text-3)] italic leading-[1.9]">
+                      {s.quote}
+                    </blockquote>
+                    <figcaption className="mt-2 text-[12px] font-[750] text-[var(--muted)]">
+                      <a href={geo.quoteCite} target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--primary)]">
+                        {geo.quoteSource ?? geo.quoteCite}
+                      </a>
+                    </figcaption>
+                  </figure>
                 )}
 
                 {s.list && s.list.length > 0 && (
@@ -120,6 +154,29 @@ export default function GeoGuide({ dict }: { dict: Dictionary }) {
           <p className="mt-8 text-center text-[15px] leading-[2] font-[800] text-[var(--text-2)] max-w-[760px] mx-auto">
             {geo.concluding}
           </p>
+        </Reveal>
+
+        {/* Authoritative sources */}
+        <Reveal>
+          <div className="mt-8 rounded-[28px] border border-[var(--line)] bg-[var(--surface)] p-6">
+            <h3 className="text-[15px] font-[1000] text-[var(--text)] flex items-center gap-2">
+              <span>🔗</span> {geo.sourcesTitle ?? "Authoritative sources & references"}
+            </h3>
+            <ul className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              {geo.resourceLinks.map((link, i) => (
+                <li key={i}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-[13.5px] font-[800] text-[var(--primary)] hover:underline"
+                  >
+                    <span>↗</span> {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </Reveal>
       </div>
     </section>
