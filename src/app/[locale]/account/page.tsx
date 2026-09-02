@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Image from "next/image";
-import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import { buildMetadata } from "@/lib/seo";
@@ -51,7 +52,44 @@ export default async function AccountPage({
   const prefix = localePrefix(locale);
 
   const user = await getSessionUser();
-  if (!user) redirect(`${prefix}/auth?next=${encodeURIComponent(`${prefix}/account`)}`);
+  if (!user) {
+    return (
+      <div className="relative overflow-hidden py-[56px] max-sm:py-[40px]"
+        style={{
+          background:
+            "radial-gradient(circle_at_15%_12%,rgba(var(--teal-rgb),0.12),transparent_30%), radial-gradient(circle_at_88%_10%,rgba(var(--primary-rgb),0.10),transparent_28%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
+        }}
+      >
+        <div className="container-page">
+          <div className="mx-auto max-w-[520px] text-center bg-[var(--surface)] border border-[var(--line)] rounded-[28px] p-10 shadow-[0_18px_52px_rgba(20,45,90,0.10)]">
+            <div className="mx-auto w-[88px] h-[88px] rounded-[26px] product-img-bg border border-[var(--soft-line)] flex items-center justify-center text-[38px]">
+              🔐
+            </div>
+            <h1 className="mt-6 text-[clamp(22px,3vw,30px)] font-[1000] text-[var(--text)]">
+              {dict.account.loginRequired}
+            </h1>
+            <p className="mt-2 text-[13.5px] leading-[2] font-[750] text-[var(--muted)]">
+              {dict.account.loginRequiredHint}
+            </p>
+            <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                href={`${prefix}/auth?next=${encodeURIComponent(`${prefix}/account`)}`}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-br from-[var(--teal-2)] to-[var(--primary)] text-white text-[13.5px] font-[950] px-7 py-3 shadow-[0_12px_30px_rgba(var(--primary-rgb),0.28)] transition-all duration-200 hover:-translate-y-0.5"
+              >
+                {dict.account.signIn}
+              </Link>
+              <Link
+                href={`${prefix}/`}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-[var(--line-strong)] bg-[var(--surface)] text-[var(--text)] text-[13.5px] font-[950] px-7 py-3 transition-all duration-200 hover:-translate-y-0.5"
+              >
+                {dict.account.continueShopping}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   await cancelExpiredOrders();
 

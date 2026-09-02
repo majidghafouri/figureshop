@@ -15,6 +15,7 @@ const STATIC_PATH: { path: string; priority: number; changeFrequency: MetadataRo
   { path: "/contact", priority: 0.6, changeFrequency: "monthly" },
   { path: "/faq", priority: 0.5, changeFrequency: "monthly" },
   { path: "/terms", priority: 0.4, changeFrequency: "monthly" },
+  { path: "/privacy", priority: 0.4, changeFrequency: "monthly" },
 ];
 
 function localize(path: string, locale: Locale): string {

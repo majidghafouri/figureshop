@@ -214,6 +214,7 @@ export const en: typeof fa = {
         { label: "Track order", href: "/account" },
         { label: "FAQ", href: "/faq" },
         { label: "Terms & conditions", href: "/terms" },
+        { label: "Privacy policy", href: "/privacy" },
         { label: "Complaints", href: "/contact" },
       ],
       contact: [
@@ -365,6 +366,10 @@ export const en: typeof fa = {
   account: {
     title: "My Account",
     welcome: "Welcome",
+    loginRequired: "Sign in to view your account",
+    loginRequiredHint: "Sign in to see your orders, profile information, and your discounts.",
+    signIn: "Sign in / Register",
+    continueShopping: "Back to store",
     email: "Email",
     phone: "Mobile number",
     phoneVerified: "Verified",
@@ -553,6 +558,124 @@ export const en: typeof fa = {
         body: [
           "These terms are governed by the laws of the Islamic Republic of Iran. Any dispute will first be addressed through negotiation and then resolved by the competent courts of Iran.",
           "For any questions about these terms, reach us through the contact page or at info@figureforge.ir.",
+        ],
+      },
+    ],
+  },
+  privacy: {
+    kicker: "Privacy",
+    title: "Privacy Policy",
+    updated: "Last revised: August 2026",
+    intro:
+      "Your privacy matters to FigureForge. This policy explains what information we collect when you use figureforge.ir, why we collect it, and how we protect it. Please read this page carefully before creating an account or placing an order.",
+    lastUpdatedLabel: "Last revised",
+    tocTitle: "Table of Contents",
+    sections: [
+      {
+        icon: "👋",
+        heading: "1. Introduction",
+        id: "introduction",
+        body: [
+          "FigureForge (figureforge.ir) is an online store specializing in action figures and collectibles. By using this website, you agree to the collection and processing of your information as described in this policy.",
+          "We are committed to collecting your personal data only to the extent necessary to provide our services and to being transparent about what data is processed and why.",
+        ],
+      },
+      {
+        icon: "🗂️",
+        heading: "2. Information We Collect",
+        id: "information-we-collect",
+        body: [
+          "Contact information: When you register, we may receive your name, email address, and mobile number. This is required to create your account, process orders, and provide support.",
+          "Order information: Purchased products, payment amounts, delivery address, and order history are stored to complete and track your orders.",
+          "Technical data: Browser, IP address, device type, and pages visited are automatically and anonymously logged to improve security and user experience.",
+          "Connected account data: If you sign in with Google or GitHub, we only receive the name and public email address provided by that service.",
+        ],
+      },
+      {
+        icon: "🎯",
+        heading: "3. How We Use Your Information",
+        id: "how-we-use-information",
+        body: [
+          "Processing and shipping your orders, notifying you about order status, and issuing invoices are the primary reasons we process your data.",
+          "We use your information to respond to support requests, handle complaints, prevent misuse, and improve website security.",
+          "With your separate consent, we may email newsletters or exclusive discounts; you can unsubscribe at any time.",
+          "We never process your data for the purpose of selling it to third parties.",
+        ],
+      },
+      {
+        icon: "🍪",
+        heading: "4. Cookies & Tracking Technologies",
+        id: "cookies",
+        body: [
+          "Cookies are small files stored in your browser that enhance your experience, for example by keeping your cart and login session.",
+          "We may use privacy-friendly analytics tools to understand how our pages perform without identifying you personally.",
+          "You can delete or manage cookies through your browser settings; some site features may be limited as a result.",
+        ],
+      },
+      {
+        icon: "🤝",
+        heading: "5. Sharing Information",
+        id: "sharing-information",
+        body: [
+          "Your personal information is never sold or rented to third parties.",
+          "To deliver orders, the minimum necessary details (recipient name and delivery address) are shared with the shipping carrier.",
+          "If required by law or by a competent authority's lawful request, limited information may be disclosed in accordance with regulations.",
+        ],
+      },
+      {
+        icon: "🔐",
+        heading: "6. Data Retention & Security",
+        id: "data-security",
+        body: [
+          "Your data is stored for as long as your account is active or as required by law (for example tax and legal obligations).",
+          "We protect your information using HTTPS transport encryption, access controls, and industry-standard security practices.",
+          "Bank card details are never stored by the site; all payments are processed through trusted, secure bank gateways.",
+        ],
+      },
+      {
+        icon: "🛡️",
+        heading: "7. Your Rights",
+        id: "your-rights",
+        body: [
+          "You can view, edit, and update your account information at any time from your account dashboard.",
+          "Requests for a copy of your personal data or account deletion can be submitted through support; legal retention requirements still apply to some data.",
+          "To object to how your data is processed or to unsubscribe from the newsletter, simply contact us via the contact page.",
+        ],
+      },
+      {
+        icon: "🧒",
+        heading: "8. Children's Privacy",
+        id: "children-privacy",
+        body: [
+          "This website is designed for general audiences. Registration by individuals under 15 years of age is not permitted without parental or legal guardian consent.",
+          "We ask users under the legal age not to submit personal information without a parent. If we become aware of such data, it will be deleted.",
+        ],
+      },
+      {
+        icon: "🔗",
+        heading: "9. Third-Party Services & Links",
+        id: "third-party",
+        body: [
+          "Links to external websites do not imply endorsement. The privacy policy of any external service is independent of ours.",
+          "Online payments are processed through third-party bank gateways and are governed by that gateway's own rules.",
+        ],
+      },
+      {
+        icon: "🔄",
+        heading: "10. Changes to This Policy",
+        id: "policy-changes",
+        body: [
+          "This policy may be updated from time to time to stay aligned with the law or to improve our services. The current version is always the one published on this page.",
+          "Significant changes will be announced on this page and, when necessary, via email.",
+        ],
+      },
+      {
+        icon: "✉️",
+        heading: "11. Contact Us",
+        id: "contact",
+        body: [
+          "For any questions about privacy or your personal data, message us via the contact page or at info@figureforge.ir.",
+          "We will respond to questions about this policy as soon as possible, within a maximum of 7 business days.",
         ],
       },
     ],
