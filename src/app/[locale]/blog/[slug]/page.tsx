@@ -13,7 +13,6 @@ import Reveal from "@/components/Reveal";
 import JsonLd from "@/components/JsonLd";
 import TableOfContents from "@/components/TableOfContents";
 import { extractHeadings } from "@/lib/toc";
-import { getSessionUser } from "@/lib/auth";
 
 export async function generateMetadata({ params }: { params: { locale: string; slug: string } }): Promise<Metadata> {
   const locale = isLocale(params.locale) ? (params.locale as Locale) : "fa";
@@ -45,7 +44,7 @@ export default async function BlogPostPage({
   if (!post) notFound();
 
   const related = await getRelatedPosts(locale, post.slug, 3);
-  const sessionUser = await getSessionUser();
+  
   const tocHeadings = extractHeadings(post.body);
 
   return (
@@ -193,8 +192,8 @@ export default async function BlogPostPage({
                 <Comments
                   targetType="ARTICLE"
                   targetId={post.id}
-                  isLoggedIn={!!sessionUser}
-                  userId={sessionUser?.id}
+                  isLoggedIn={false}
+                  userId={undefined}
                   dict={dict.products.detail.comments}
                 />
 
