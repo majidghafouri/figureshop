@@ -944,6 +944,13 @@ export const en: typeof fa = {
     quoteCite: "https://www.npd.com/",
     sourcesTitle: 'Authoritative sources & references',
     quoteSource: 'Source: NPD Group',
+    yr: "2026",
+    statsRef: "Sources: NPD Group (2024) and Figureforge catalog data.",
+    tocTitle: "In this guide",
+    specsTitle: "Specifications at a glance",
+    specs: [{"k": "Scale", "v": "1/12, 1/10, 1/6 and Nendoroid"}, {"k": "Materials", "v": "PVC, ABS plastics, die-cast metal"}, {"k": "Manufacturers", "v": "Bandai, NECA, Good Smile, Hasbro, Mattel"}, {"k": "Licensing", "v": "Official licenses + serial numbers"}, {"k": "Environmental", "v": "UV-free display, low dust, stable temperature"}],
+    faqTitle: "Frequently asked questions about figure collecting",
+    faq: [{"q": "What is the difference between a figure and an action figure?", "a": "A figure is a static collectible, while an action figure has movable joints and often interchangeable accessories, letting you pose it."}, {"q": "How can I tell a fake figure from an original in 2026?", "a": "Check the serial number and official seal, inspect the print and paint quality, and compare the joints with official product photos. Always buy from authorized sellers."}, {"q": "How much does a collectible figure cost?", "a": "Standard 1/12-scale figures typically cost $25–60, luxury 1/6-scale pieces run $200–400, and discontinued figures can resell for 2–5 times their original price."}, {"q": "Which figure brands hold their value the best?", "a": "Bandai, NECA and Good Smile Company generally retain the highest resale value because of strong licenses and consistent quality."}, {"q": "How should I store and display my collection?", "a": "Keep figures away from direct sunlight, use UV-filtering display cases, dust with a soft brush, and store boxes flat in a cool, dry place."}],
     concluding: "Whatever you collect — anime, gaming, or movie figures — always verify authenticity, compare prices, and display your pieces with care. Start your collection with a trusted store that guarantees originality and backs every order.",
   },
   contact: {

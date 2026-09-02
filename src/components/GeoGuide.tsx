@@ -19,9 +19,31 @@ export default function GeoGuide({ dict }: { dict: Dictionary }) {
             <h2 className="mt-3 text-[clamp(26px,3vw,42px)] max-sm:text-[28px] leading-[1.35] tracking-[-0.9px] font-[1000] text-[var(--text)]">
               {geo.title}
             </h2>
-            <p className="mt-3 text-[14px] font-[800] text-[var(--muted)]">{geo.updated}</p>
+            <p className="mt-3 text-[14px] font-[800] text-[var(--muted)]">{geo.updated} · {geo.yr}</p>
           </Reveal>
         </div>
+
+        {/* Table of Contents */}
+        <Reveal>
+          <nav
+            aria-label={geo.tocTitle}
+            className="mt-8 rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-5"
+          >
+            <h3 className="text-[14px] font-[1000] text-[var(--primary)]">{geo.tocTitle}</h3>
+            <ol className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+              {geo.sections.map((s, i) => (
+                <li key={s.id}>
+                  <a
+                    href={`#${s.id}`}
+                    className="flex items-start gap-2 text-[13.5px] font-[800] text-[var(--text-2)] hover:text-[var(--primary)]"
+                  >
+                    <span className="text-[var(--primary)] font-[950]">{i + 1}.</span> {s.heading}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        </Reveal>
 
         {/* Key Takeaways (TL;DR) */}
         <Reveal>
@@ -56,6 +78,7 @@ export default function GeoGuide({ dict }: { dict: Dictionary }) {
                 </div>
               ))}
             </div>
+            <p className="mt-3 text-[12px] font-[750] text-[var(--muted)] text-center">{geo.statsRef}</p>
           </Reveal>
         )}
 
@@ -148,6 +171,57 @@ export default function GeoGuide({ dict }: { dict: Dictionary }) {
             </div>
           </div>
         </Reveal>
+
+        {/* Specifications table */}
+        {geo.specs && geo.specs.length > 0 && (
+          <Reveal>
+            <div className="mt-8 rounded-[28px] border border-[var(--line)] bg-[var(--surface)] p-6 overflow-hidden">
+              <h3 className="text-[17px] font-[1000] text-[var(--text)]">{geo.specsTitle}</h3>
+              <table className="mt-4 w-full border-collapse text-[13.5px]">
+                <tbody>
+                  {geo.specs.map((row, i) => (
+                    <tr key={i} className={i % 2 ? "bg-[var(--soft)]" : "bg-transparent"}>
+                      <th
+                        scope="row"
+                        className="text-left font-[950] text-[var(--text)] px-4 py-2.5 border-b border-[var(--line)] whitespace-nowrap"
+                      >
+                        {row.k}
+                      </th>
+                      <td className="px-4 py-2.5 border-b border-[var(--line)] font-[700] text-[var(--text-2)]">
+                        {row.v}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Reveal>
+        )}
+
+        {/* FAQ with details/summary */}
+        {geo.faq && geo.faq.length > 0 && (
+          <Reveal>
+            <div className="mt-8 rounded-[28px] border border-[var(--line)] bg-[var(--surface)] p-6">
+              <h3 className="text-[17px] font-[1000] text-[var(--text)]">{geo.faqTitle}</h3>
+              <div className="mt-4 space-y-3">
+                {geo.faq.map((item, i) => (
+                  <details
+                    key={i}
+                    className="group rounded-[16px] border border-[var(--line)] bg-[var(--soft)] open:bg-[var(--surface)]"
+                  >
+                    <summary className="flex items-center justify-between gap-3 cursor-pointer px-5 py-3.5 text-[14px] font-[950] text-[var(--text)] list-none">
+                      <span className="flex items-center gap-2">{item.q}</span>
+                      <span className="text-[var(--primary)] text-[18px] leading-none transition-transform group-open:rotate-45">+</span>
+                    </summary>
+                    <p className="px-5 pb-4 text-[13.5px] font-[700] text-[var(--text-2)] leading-[1.9]">
+                      {item.a}
+                    </p>
+                  </details>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+        )}
 
         {/* Concluding */}
         <Reveal>
