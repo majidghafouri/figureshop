@@ -65,16 +65,6 @@ export default async function Footer({ locale, dict }: { locale: Locale; dict: D
                     </Link>
                   </li>
                 ))}
-                {col === "help" && (
-                  <li>
-                    <Link
-                      href={prefix + "/privacy"}
-                      className="text-[var(--text-5)] font-[700] text-[13.5px] no-underline transition-colors duration-200 hover:text-[var(--primary)] hover:underline hover:underline-offset-[5px]"
-                    >
-                      {dict.footer.links.help.find(l => l.label === "Privacy Policy")?.label || "Privacy Policy"}
-                    </Link>
-                  </li>
-                )}
               </ul>
             </div>
           ))}
