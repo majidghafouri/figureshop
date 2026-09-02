@@ -68,16 +68,14 @@ export default async function AdminProductsPage({
               <tr key={prod.id} className="font-[850] text-[var(--text-3)]">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-[44px] h-[44px] rounded-[10px] overflow-hidden product-img-bg border border-[var(--soft-line)] shrink-0">
+                    <div className="relative w-[44px] h-[44px] rounded-[10px] overflow-hidden product-img-bg border border-[var(--soft-line)] shrink-0">
                       {prod.images[0] && (
                         <Image
                           src={prod.images[0]}
                           alt=""
                           fill
                           sizes="44px"
-                          width={44}
-                          height={44}
-                          className="w-full h-full object-cover"
+                          className="object-cover"
                         />
                       )}
                     </div>

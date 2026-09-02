@@ -91,16 +91,14 @@ export default async function AdminOrdersPage({
               <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {o.items.map((item) => (
                   <div key={item.id} className="flex items-center gap-2.5 bg-[var(--surface-2)] border border-[var(--soft-line)] rounded-[12px] p-2.5">
-                    <div className="w-[38px] h-[38px] rounded-[8px] overflow-hidden product-img-bg shrink-0">
+                    <div className="relative w-[38px] h-[38px] rounded-[8px] overflow-hidden product-img-bg shrink-0">
                       {item.product.images[0] && (
                         <Image
                           src={item.product.images[0]}
                           alt=""
                           fill
                           sizes="38px"
-                          width={38}
-                          height={38}
-                          className="w-full h-full object-cover"
+                          className="object-cover"
                         />
                       )}
                     </div>
