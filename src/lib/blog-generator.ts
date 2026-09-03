@@ -1,6 +1,11 @@
 import prisma from "@/lib/db";
 import { Locale } from "@/lib/i18n";
 import { notifySubscribersOfNewPost } from "@/lib/newsletter";
+import { put } from "@vercel/blob";
+import { mkdir, writeFile } from "fs/promises";
+import path from "path";
+import crypto from "crypto";
+import sharp from "sharp";
 
 export type LocalizedText = { fa: string; en: string; ar: string };
 
@@ -675,6 +680,63 @@ export function dateSlug(topicId: string, date: Date): string {
   return `${topicId}-${y}-${m}-${d}`;
 }
 
+const COVER_GRADIENT: Record<string, [string, string]> = {
+  care: ["#0f2557", "#1d6bb8"],
+  guide: ["#0f5c4a", "#17a57f"],
+  movies: ["#5c1250", "#c22580"],
+  news: ["#4a2a10", "#c97b1d"],
+  collect: ["#1a2a45", "#3f6cb0"],
+};
+
+function buildCoverSvg(topic: Topic): string {
+  const [from, to] = COVER_GRADIENT[topic.category] ?? ["#0f2557", "#1d6bb8"];
+  const dim = 1200;
+  const cx = dim / 2;
+  const cy = dim / 2 - 60;
+  return [
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${dim}" height="630" viewBox="0 0 ${dim} 630">`,
+    `<defs>`,
+    `<linearGradient id="g" x1="0" y1="0" x2="1" y2="1">`,
+    `<stop offset="0" stop-color="${from}"/>`,
+    `<stop offset="1" stop-color="${to}"/>`,
+    `</linearGradient>`,
+    `<radialGradient id="halo" cx="0.5" cy="0.42" r="0.7">`,
+    `<stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>`,
+    `<stop offset="1" stop-color="#ffffff" stop-opacity="0"/>`,
+    `</radialGradient>`,
+    `</defs>`,
+    `<rect width="${dim}" height="630" fill="url(#g)"/>`,
+    `<rect width="${dim}" height="630" fill="url(#halo)"/>`,
+    `<circle cx="${cx}" cy="${cy}" r="210" fill="#ffffff" fill-opacity="0.10"/>`,
+    `<text x="${cx}" y="${cy + 66}" font-size="190" text-anchor="middle" dominant-baseline="central">${topic.icon}</text>`,
+    `<text x="60" y="560" font-size="34" letter-spacing="2" fill="#ffffff" fill-opacity="0.85" font-family="Arial, sans-serif">FIGFIGURE · FORGE ·</text>`,
+    `<text x="1140" y="560" font-size="34" text-anchor="end" fill="#ffffff" fill-opacity="0.85" font-family="Arial, sans-serif">figureforge.ir</text>`,
+    `</svg>`,
+  ].join("\n");
+}
+
+export async function buildCover(
+  topic: Topic,
+  slug: string,
+): Promise<{ url: string; svg: string } | null> {
+  const svg = buildCoverSvg(topic);
+  try {
+    const out = await sharp(Buffer.from(svg)).webp({ quality: 88 }).toBuffer();
+    const filename = `blog-covers/${slug}-${crypto.randomBytes(4).toString("hex")}.webp`;
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      const blob = await put(filename, out, { access: "public", addRandomSuffix: false });
+      return { url: blob.url, svg };
+    }
+    const dir = path.join(process.cwd(), "public", "uploads", "blog-covers");
+    await mkdir(dir, { recursive: true });
+    await writeFile(path.join(dir, path.basename(filename)), out);
+    return { url: `/uploads/blog-covers/${path.basename(filename)}`, svg };
+  } catch (err) {
+    console.error("[blog-generator] cover build failed", slug, err);
+    return null;
+  }
+}
+
 export async function generateDailyPost(
   date = new Date(),
 ): Promise<{ slug: string; title: string } | null> {
@@ -685,11 +747,15 @@ export async function generateDailyPost(
 
   const title = topic.title.fa;
 
+  const cover = await buildCover(topic, slug);
+  const coverImage = cover ? cover.url : null;
+  const coverSvg = cover ? cover.svg : null;
+
   const post = await prisma.blogPost.upsert({
     where: { slug },
     update: {
-      coverImage: null,
-      coverSvg: null,
+      coverImage,
+      coverSvg,
       category: topic.category,
       readingTime: readingMinutes(topic, "fa"),
       isPublished: true,
@@ -698,8 +764,8 @@ export async function generateDailyPost(
     },
     create: {
       slug,
-      coverImage: null,
-      coverSvg: null,
+      coverImage,
+      coverSvg,
       category: topic.category,
       readingTime: readingMinutes(topic, "fa"),
       isPublished: true,
