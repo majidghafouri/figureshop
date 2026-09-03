@@ -79,31 +79,34 @@ export default function ProductCard({
           </h3>
         </Link>
 
-        <div className="mt-3 flex items-end justify-between gap-2">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-[16.5px] font-[1000] text-[var(--primary)]">
-                {formatPrice(product.price, locale).split(" ")[0]}
-              </span>
-              <span className="text-[11px] font-[900] text-[var(--muted)]">
-                {dict.common.currency}
-              </span>
-            </div>
-            {product.compareAtPrice && product.compareAtPrice > product.price && (
-              <div className="text-[12px] font-[800] text-[var(--muted-4)] line-through">
-                {formatPrice(product.compareAtPrice, locale)}
+        <div className="mt-3">
+          <div className="flex items-end justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 w-full">
+                <span className="text-[16.5px] font-[1000] text-[var(--primary)] whitespace-nowrap">
+                  {formatPrice(product.price, locale).split(" ")[0]}
+                </span>
+                <span className="text-[11px] font-[900] text-[var(--muted)] shrink-0">
+                  {dict.common.currency}
+                </span>
               </div>
-            )}
+              {product.compareAtPrice && product.compareAtPrice > product.price && (
+                <div className="text-[12px] font-[800] text-[var(--muted-4)] line-through whitespace-nowrap">
+                  {formatPrice(product.compareAtPrice, locale)}
+                </div>
+              )}
+            </div>
           </div>
           {product.stock > 0 && product.stock <= 5 && (
             <Marquee
-              maxWidth={116}
-              className="text-[10.5px] font-[950] text-[var(--warning-strong)] bg-[var(--warning-soft)] border border-[var(--warning-soft-3)] rounded-full px-2 py-0.5"
+              maxWidth={120}
+              className="mt-2 text-[10.5px] font-[950] text-[var(--warning-strong)] bg-[var(--warning-soft)] border border-[var(--warning-soft-3)] rounded-full px-2 py-0.5"
             >
               {dict.products.lowStock}
             </Marquee>
           )}
         </div>
+
 
         <div className="mt-auto pt-3.5">
           <AddToCartButton

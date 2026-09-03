@@ -536,7 +536,7 @@ export function isFaArContentValid(t: {
 
 // ---------- Cover image ----------
 
-async function downloadCover(imageUrl: string): Promise<string | null> {
+export async function downloadCover(imageUrl: string): Promise<string | null> {
   if (!imageUrl) return null;
   try {
     const res = await fetch(imageUrl, { headers: { "User-Agent": UA } });
@@ -709,7 +709,7 @@ export async function importWebArticle(candidate: WebArticleCandidate): Promise<
   await prisma.blogPost.create({
     data: {
       slug,
-      coverImage: coverImage || scraped.image,
+      coverImage,
       category: topic,
       readingTime,
       isPublished: true,
@@ -927,6 +927,58 @@ export async function retranslateBrokenImports(limit = 2): Promise<string[]> {
       if (!stillBroken) fixed.push(post.slug);
     } catch (err) {
       console.error("[web-articles] retranslate failed", post.slug, err);
+    }
+  }
+
+  return fixed;
+}
+
+/**
+ * Find posts whose cover image is an un-rehosted remote URL (raw source-site
+ * link that can break due to hotlink protection, expiry or CDN quirks) and
+ * re-host it locally as a validated webp. If the remote image can no longer be
+ * downloaded, drop the cover so cards render the placeholder instead of a
+ * broken image. Returns the slugs that were repaired.
+ */
+export async function repairCoverImages(limit = 20): Promise<string[]> {
+  const fixed: string[] = [];
+
+  const posts = await prisma.blogPost.findMany({
+    where: {
+      coverImage: { not: null },
+      OR: [{ slug: { startsWith: "rss-" } }, { slug: { startsWith: "web-" } }],
+    },
+    orderBy: { createdAt: "desc" },
+    take: 80,
+  });
+
+  const isRemote = (src: string | null): src is string =>
+    !!src && /^https?:\/\//.test(src);
+
+  for (const post of posts) {
+    if (fixed.length >= limit) break;
+    const src = post.coverImage;
+    if (!isRemote(src)) continue;
+
+    try {
+      const rehosted = await downloadCover(src);
+      if (!rehosted) {
+        await prisma.blogPost.update({
+          where: { id: post.id },
+          data: { coverImage: null },
+        });
+        fixed.push(post.slug);
+        continue;
+      }
+      if (rehosted !== src) {
+        await prisma.blogPost.update({
+          where: { id: post.id },
+          data: { coverImage: rehosted },
+        });
+        fixed.push(post.slug);
+      }
+    } catch (err) {
+      console.error("[web-articles] cover repair failed", post.slug, err);
     }
   }
 

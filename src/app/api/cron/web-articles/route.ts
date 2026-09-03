@@ -4,6 +4,7 @@ import {
   importWebArticles,
   retranslateBrokenImports,
   repairRssTranslations,
+  repairCoverImages,
 } from "@/lib/web-articles";
 
 export async function GET(req: NextRequest) {
@@ -16,6 +17,8 @@ export async function GET(req: NextRequest) {
   // Repair any earlier imports whose translations silently fell back to English.
   const repaired = await retranslateBrokenImports(2);
   const rssRepaired = await repairRssTranslations(2);
+  // Re-host any cover images still pointing at external, breakable URLs.
+  const coversRepaired = await repairCoverImages(20);
 
   const results = await importWebArticles(2);
 
@@ -26,6 +29,7 @@ export async function GET(req: NextRequest) {
   return ok({
     repaired,
     rssRepaired,
+    coversRepaired,
     imported: imported.length,
     skipped: skipped.length,
     errors: errors.length > 0 ? errors : undefined,

@@ -1,6 +1,6 @@
 import RssParser from "rss-parser";
 import prisma from "@/lib/db";
-import { isFaArContentValid, translateArticle } from "@/lib/web-articles";
+import { downloadCover, isFaArContentValid, translateArticle } from "@/lib/web-articles";
 
 const parser = new RssParser({
   timeout: 10_000,
@@ -83,7 +83,7 @@ export async function fetchSingleFeed(feed: RssFeedConfig): Promise<FetchResult>
       await prisma.blogPost.create({
         data: {
           slug,
-          coverImage: image,
+          coverImage: (await downloadCover(image ?? "")) ?? null,
           category: parsed.title || feed.name || "web",
           readingTime: estimateReadingTime(rawBody),
           isPublished: true,
