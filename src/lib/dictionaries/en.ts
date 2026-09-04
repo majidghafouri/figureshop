@@ -821,6 +821,7 @@ export const en: typeof fa = {
     latestArticle: "Latest article",
     viewAllArticles: "View all articles",
     readOriginal: "Read original article",
+    tocTitle: "In this article",
   },
   about: {
     kicker: "About us",

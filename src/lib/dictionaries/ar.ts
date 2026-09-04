@@ -821,6 +821,7 @@ export const ar: typeof fa = {
     latestArticle: "آخر مقال",
     viewAllArticles: "عرض جميع المقالات",
     readOriginal: "قراءة المقال الأصلي",
+    tocTitle: "في هذا المقال",
   },
   about: {
     kicker: "من نحن",

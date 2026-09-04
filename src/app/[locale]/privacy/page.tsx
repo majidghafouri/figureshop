@@ -71,7 +71,7 @@ export default function PrivacyPage({ params }: { params: { locale: string } }) 
 
         <div className="mt-10 lg:grid lg:grid-cols-[260px_1fr] lg:gap-10 items-start">
           <aside className="hidden lg:block">
-            <TableOfContents headings={headings} />
+            <TableOfContents headings={headings} tocTitle={dict.privacy.tocTitle} />
           </aside>
 
           <div>

@@ -819,6 +819,7 @@ export const fa = {
     latestArticle: "آخرین مقاله",
     viewAllArticles: "مشاهده همه مقالات",
     readOriginal: "خواندن مقاله اصلی",
+    tocTitle: "در این مقاله",
   },
   about: {
     kicker: "درباره ما",

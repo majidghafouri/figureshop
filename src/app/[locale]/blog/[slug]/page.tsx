@@ -210,7 +210,7 @@ export default async function BlogPostPage({
 
           {tocHeadings.length > 0 && (
             <aside className="hidden lg:block">
-              <TableOfContents headings={tocHeadings} />
+              <TableOfContents headings={tocHeadings} tocTitle={dict.blog.tocTitle} />
             </aside>
           )}
         </div>

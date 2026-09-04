@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Heading } from "@/lib/toc";
 
-export default function TableOfContents({ headings }: { headings: Heading[] }) {
+export default function TableOfContents({ headings, tocTitle = "Table of Contents" }: { headings: Heading[]; tocTitle?: string }) {
   const [activeId, setActiveId] = useState<string>("");
 
   useEffect(() => {
@@ -31,11 +31,11 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
 
   return (
     <nav
-      className="hidden lg:block sticky top-[100px] max-h-[70vh] overflow-y-auto pr-2"
+      className="hidden lg:block sticky top-[100px]"
       aria-label="Table of Contents"
     >
       <h3 className="text-[12px] font-[950] text-[var(--muted-3)] uppercase tracking-wider mb-3">
-        در این مقاله
+        {tocTitle}
       </h3>
       <ul className="space-y-1.5">
         {headings.map((h) => (
