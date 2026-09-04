@@ -144,7 +144,7 @@ export default function SpotlightCarousel({
               onClick={() => jumpTo(i)}
               className="h-2 rounded-full transition-all duration-300"
               style={{
-                width: i === active ? 26 : 8,
+                width: i === active ? 26 : 24,
                 background:
                   i === active
                     ? "linear-gradient(135deg,var(--primary),var(--teal))"

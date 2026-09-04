@@ -6,7 +6,7 @@ const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com",
+      "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://trustseal.enamad.ir",
       "font-src 'self' data:",
       "connect-src 'self'",
       "frame-src 'none'",
