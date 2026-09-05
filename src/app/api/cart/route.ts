@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   const product = await prisma.product.findUnique({
     where: { id: body.productId },
   });
-  if (!product || !product.isActive) return fail("product_not_found", 404);
+  if (!product || !product.isActive || product.isDeactivated) return fail("product_not_found", 404);
   const qty = Math.max(1, Math.min(Number(body.quantity) || 1, Math.max(1, product.stock)));
 
   const user = await getSessionUserFromRequest(req);

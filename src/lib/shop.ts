@@ -12,6 +12,7 @@ export type ProductItem = {
   compareAtPrice: number | null;
   stock: number;
   isActive: boolean;
+  isDeactivated: boolean;
   isFeatured: boolean;
   isSpecial: boolean;
   hasDiscount: boolean;
@@ -43,6 +44,7 @@ export type LocaleProduct = {
   compareAtPrice: number | null;
   stock: number;
   isActive: boolean;
+  isDeactivated: boolean;
   isFeatured: boolean;
   isSpecial: boolean;
   hasDiscount: boolean;
@@ -97,6 +99,7 @@ export function mapProduct(product: LocaleProduct): ProductItem {
     compareAtPrice: product.compareAtPrice,
     stock: product.stock,
     isActive: product.isActive,
+    isDeactivated: product.isDeactivated,
     isFeatured: product.isFeatured,
     isSpecial: product.isSpecial,
     hasDiscount: product.hasDiscount,

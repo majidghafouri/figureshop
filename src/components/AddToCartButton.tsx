@@ -11,6 +11,7 @@ export default function AddToCartButton({
   variant = "solid",
   quantity = 1,
   className = "",
+  disabled = false,
 }: {
   productId: string;
   stock: number;
@@ -19,11 +20,13 @@ export default function AddToCartButton({
   variant?: "solid" | "outline" | "full";
   quantity?: number;
   className?: string;
+  disabled?: boolean;
 }) {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
   const [busy, setBusy] = useState(false);
   const outOfStock = stock <= 0;
+  const blocked = disabled || outOfStock;
 
   const base =
     variant === "full"
@@ -33,7 +36,7 @@ export default function AddToCartButton({
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (outOfStock || busy) return;
+    if (blocked || busy) return;
     setBusy(true);
     const ok = await addToCart(productId, quantity);
     setBusy(false);
@@ -43,7 +46,7 @@ export default function AddToCartButton({
     }
   };
 
-  if (outOfStock) {
+  if (blocked) {
     return (
       <button
         type="button"

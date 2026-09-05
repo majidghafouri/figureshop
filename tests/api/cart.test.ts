@@ -111,6 +111,33 @@ describe("Cart API Routes", () => {
       expect(body.error).toBe("product_not_found");
     });
 
+    it("returns 404 for deactivated product", async () => {
+      mockParseJson.mockReturnValue({ productId: "prod1", quantity: 1 });
+      mockPrisma.product.findUnique.mockResolvedValue({
+        id: "prod1",
+        isActive: true,
+        isDeactivated: true,
+        stock: 10,
+      });
+      mockFail.mockReturnValue({
+        json: async () => ({ ok: false, error: "product_not_found" }),
+        status: 404,
+      });
+
+      const { POST } = await import("@/app/api/cart/route");
+      const req = new Request("http://localhost/api/cart", {
+        method: "POST",
+      }) as any;
+      req.text = async () =>
+        JSON.stringify({ productId: "prod1", quantity: 1 });
+      req.nextUrl = { pathname: "/fa/api/cart" };
+      req.cookies = { get: vi.fn() };
+      const res = await POST(req);
+      const body = await res.json();
+      expect(body.ok).toBe(false);
+      expect(body.error).toBe("product_not_found");
+    });
+
     it("adds product to cart successfully", async () => {
       mockParseJson.mockReturnValue({ productId: "prod1", quantity: 2 });
       mockPrisma.product.findUnique.mockResolvedValue({

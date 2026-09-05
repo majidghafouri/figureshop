@@ -98,6 +98,7 @@ model Product {
   compareAtPrice Int?
   stock          Int                  @default(0)
   isActive       Boolean              @default(true)
+  isDeactivated  Boolean              @default(false)
   isFeatured     Boolean              @default(false)
   isSpecial      Boolean              @default(false)
   hasDiscount    Boolean              @default(false)

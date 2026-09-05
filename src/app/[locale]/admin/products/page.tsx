@@ -5,6 +5,7 @@ import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import prisma from "@/lib/db";
 import DeleteProductButton from "@/components/admin/DeleteProductButton";
+import ToggleProductStatusButton from "@/components/admin/ToggleProductStatusButton";
 import FavoriteColumn from "@/components/admin/FavoriteColumn";
 
 export const dynamic = "force-dynamic";
@@ -120,12 +121,24 @@ export default async function AdminProductsPage({
                   />
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-[950] ${prod.isActive ? "bg-[var(--soft)] text-[var(--primary)]" : "bg-[var(--neutral-soft)] text-[var(--muted-3)]"}`}>
-                    {prod.isActive ? p.yes : p.no}
-                  </span>
+                  <div className="flex flex-col items-start gap-1">
+                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-[950] ${prod.isActive ? "bg-[var(--soft)] text-[var(--primary)]" : "bg-[var(--neutral-soft)] text-[var(--muted-3)]"}`}>
+                      {prod.isActive ? p.yes : p.no}
+                    </span>
+                    {prod.isDeactivated && (
+                      <span className="rounded-full px-2.5 py-1 text-[11px] font-[950] bg-[var(--warning-soft)] text-[var(--warning-strong)]">
+                        {p.deactivated}
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <ToggleProductStatusButton
+                      id={prod.id}
+                      isDeactivated={prod.isDeactivated}
+                      dict={{ activate: p.activate, deactivate: p.deactivate, busy: p.saving }}
+                    />
                     <Link href={`${prefix}/admin/products/${prod.id}/edit`} className="text-[12px] font-[950] text-[var(--primary)] hover:underline">
                       {p.edit}
                     </Link>

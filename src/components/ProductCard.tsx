@@ -45,6 +45,11 @@ export default function ProductCard({
 
           {/* Badges */}
           <div className="absolute top-3 rtl:right-3 ltr:left-3 flex flex-col gap-2 items-start">
+            {product.isDeactivated && (
+              <span className="bg-[var(--warning-strong)] text-white text-[11.5px] font-[950] rounded-full px-2.5 py-1 shadow-[0_8px_18px_rgba(0,0,0,0.18)]">
+                {dict.products.deactivated}
+              </span>
+            )}
             {isDiscount && (
               <span className="bg-gradient-to-br from-[var(--teal-2)] to-[var(--primary)] text-white text-[11.5px] font-[950] rounded-full px-2.5 py-1 shadow-[0_8px_20px_rgba(var(--teal-rgb),0.3)]">
                 {percent !== null ? `٪${percent}` : dict.products.discount}
@@ -57,13 +62,13 @@ export default function ProductCard({
             )}
           </div>
 
-          {product.stock <= 0 && (
+          {product.stock <= 0 || product.isDeactivated ? (
             <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
               <span className="bg-[var(--inverse)] text-white text-[12.5px] font-[950] rounded-full px-4 py-2">
-                {dict.products.outOfStock}
+                {product.isDeactivated ? dict.products.deactivated : dict.products.outOfStock}
               </span>
             </div>
-          )}
+          ) : null}
         </div>
       </Link>
 
@@ -112,6 +117,7 @@ export default function ProductCard({
           <AddToCartButton
             productId={product.id}
             stock={product.stock}
+            disabled={product.isDeactivated}
             label={dict.products.addToCart}
             addedLabel={dict.products.addedToCart}
             variant="full"

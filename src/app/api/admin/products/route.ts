@@ -13,6 +13,7 @@ type ProductPayload = {
   compareAtPrice?: number;
   stock?: number;
   isActive?: boolean;
+  isDeactivated?: boolean;
   isFeatured?: boolean;
   isSpecial?: boolean;
   heightCm?: string;
@@ -69,6 +70,7 @@ export async function POST(req: NextRequest) {
       compareAtPrice: body.compareAtPrice ? Math.round(body.compareAtPrice) : null,
       stock: Math.max(0, Math.round(body.stock ?? 0)),
       isActive: body.isActive ?? true,
+      isDeactivated: body.isDeactivated ?? false,
       isFeatured: body.isFeatured ?? false,
       isSpecial: body.isSpecial ?? false,
       hasDiscount: !!(

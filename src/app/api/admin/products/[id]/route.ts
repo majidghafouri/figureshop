@@ -14,6 +14,7 @@ type ProductPayload = {
   compareAtPrice?: number;
   stock?: number;
   isActive?: boolean;
+  isDeactivated?: boolean;
   isFeatured?: boolean;
   isSpecial?: boolean;
   heightCm?: string;
@@ -60,6 +61,7 @@ export async function PATCH(
     data.compareAtPrice = body.compareAtPrice ? Math.round(body.compareAtPrice) : null;
   if (body.stock !== undefined) data.stock = Math.max(0, Math.round(body.stock));
   if (body.isActive !== undefined) data.isActive = body.isActive;
+  if (body.isDeactivated !== undefined) data.isDeactivated = body.isDeactivated;
   if (body.isFeatured !== undefined) data.isFeatured = body.isFeatured;
   if (body.isSpecial !== undefined) data.isSpecial = body.isSpecial;
   const compareAt = body.compareAtPrice ?? existing.compareAtPrice;

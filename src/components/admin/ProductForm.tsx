@@ -17,6 +17,7 @@ type ProductData = {
   compareAtPrice?: string;
   stock: string;
   isActive: boolean;
+  isDeactivated: boolean;
   isFeatured: boolean;
   isSpecial: boolean;
   heightCm?: string;
@@ -52,6 +53,7 @@ export type ProductFormDict = {
   material: string;
   weight: string;
   activeLabel: string;
+  deactivatedLabel: string;
   featured: string;
   special: string;
   images: string;
@@ -114,6 +116,7 @@ export default function ProductForm({
       compareAtPrice: "",
       stock: "10",
       isActive: true,
+      isDeactivated: false,
       isFeatured: false,
       isSpecial: false,
       heightCm: "",
@@ -193,6 +196,7 @@ export default function ProductForm({
       compareAtPrice: form.compareAtPrice ? Number(form.compareAtPrice) : undefined,
       stock: Number(form.stock) || 0,
       isActive: form.isActive,
+      isDeactivated: form.isDeactivated,
       isFeatured: form.isFeatured,
       isSpecial: form.isSpecial,
       heightCm: form.heightCm?.trim() || undefined,
@@ -311,6 +315,7 @@ export default function ProductForm({
         <div className="mt-3.5 flex gap-4">
           {[
             { k: "isActive" as const, label: dict.activeLabel },
+            { k: "isDeactivated" as const, label: dict.deactivatedLabel },
             { k: "isFeatured" as const, label: dict.featured },
             { k: "isSpecial" as const, label: dict.special },
           ].map(({ k, label }) => (

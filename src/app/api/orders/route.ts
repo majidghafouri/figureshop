@@ -61,6 +61,9 @@ export async function POST(req: NextRequest) {
   let subtotal = 0;
   let discount = 0;
   for (const item of cart.items) {
+    if (!item.product.isActive || item.product.isDeactivated) {
+      return fail("product_not_found", 400, { productId: item.product.id });
+    }
     if (item.product.stock < item.quantity) {
       return fail("stock_changed", 400, { productId: item.product.id });
     }

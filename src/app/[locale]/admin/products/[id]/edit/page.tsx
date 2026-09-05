@@ -41,6 +41,7 @@ export default async function EditProductPage({
     compareAtPrice: product.compareAtPrice ? String(product.compareAtPrice) : "",
     stock: String(product.stock),
     isActive: product.isActive,
+    isDeactivated: product.isDeactivated,
     isFeatured: product.isFeatured,
     isSpecial: product.isSpecial,
     heightCm: product.heightCm ?? "",

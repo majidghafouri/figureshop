@@ -52,7 +52,7 @@ export async function getCartItems(cartId: string, locale: Locale) {
 
 export async function addToCart(input: CartInput, productId: string, quantity: number, locale: Locale) {
   const product = await prisma.product.findUnique({ where: { id: productId } });
-  if (!product || !product.isActive) return { error: "Product not found" as const };
+  if (!product || !product.isActive || product.isDeactivated) return { error: "Product not found" as const };
   if (product.stock < quantity) return { error: "Not enough stock" as const };
 
   const { cart, newToken } = await getOrCreateCart(input);

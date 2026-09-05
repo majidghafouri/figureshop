@@ -172,6 +172,11 @@ export default async function ProductDetailPage({
           {/* Info */}
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
+              {p.isDeactivated && (
+                <span className="bg-[var(--warning-soft)] text-[var(--warning-strong)] border border-[var(--warning-soft-3)] rounded-full px-3 py-1 text-[11.5px] font-[950]">
+                  {dict.products.deactivated}
+                </span>
+              )}
               {p.isSpecial && (
                 <span className="bg-gradient-to-br from-[var(--teal-2)] to-[var(--primary)] text-white text-[11.5px] font-[950] rounded-full px-3 py-1">
                   {dict.products.special}
@@ -185,13 +190,17 @@ export default async function ProductDetailPage({
                   {p.category.name}
                 </Link>
               )}
-              {p.stock > 0 ? (
+              {!p.isDeactivated && p.stock > 0 ? (
                 <span className="bg-[var(--success-soft)] text-[var(--success)] border border-[var(--success-soft-3)] rounded-full px-3 py-1 text-[11.5px] font-[950]">
                   {dict.products.inStock}
                 </span>
-              ) : (
+              ) : !p.isDeactivated ? (
                 <span className="bg-[var(--neutral-soft)] text-[var(--muted-3)] rounded-full px-3 py-1 text-[11.5px] font-[950]">
                   {dict.products.outOfStock}
+                </span>
+              ) : (
+                <span className="bg-[var(--warning-soft)] text-[var(--warning-strong)] border border-[var(--warning-soft-3)] rounded-full px-3 py-1 text-[11.5px] font-[950]">
+                  {dict.products.deactivated}
                 </span>
               )}
             </div>
@@ -241,6 +250,8 @@ export default async function ProductDetailPage({
               <PurchasePanel
                 productId={p.id}
                 stock={p.stock}
+                deactivated={p.isDeactivated}
+                deactivatedLabel={dict.products.deactivatedPurchase}
                 dict={dict}
                 checkoutHref={`${prefix}/checkout`}
               />

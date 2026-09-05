@@ -177,7 +177,7 @@ export async function reorderOrder(userId: string, orderId: string): Promise<Reo
     where: { id: orderId, userId },
     include: {
       items: {
-        include: { product: { select: { id: true, stock: true, isActive: true } } },
+        include: { product: { select: { id: true, stock: true, isActive: true, isDeactivated: true } } },
       },
     },
   });
@@ -189,7 +189,7 @@ export async function reorderOrder(userId: string, orderId: string): Promise<Reo
 
   for (const item of order.items) {
     const product = item.product;
-    if (!product.isActive || product.stock < 1) {
+    if (!product.isActive || product.isDeactivated || product.stock < 1) {
       skipped.push(item.productId);
       continue;
     }
